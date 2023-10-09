@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="2dp"
+    app:barrierMargin="2dp"
+    app:cardBackgroundColor="@color/color_coco_4"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="5dp"
+    app:contentPadding="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvDogCardItemID"
+            android:layout_width="5dp"
+            android:layout_height="30dp"
+            android:layout_weight="0.05"
+            android:text="TextView"
+            android:textSize="8sp"
+            android:visibility="invisible"
+            tools:ignore="HardcodedText,SmallSp" />
+
+        <TextView
+            android:id="@+id/tvDogCardItemName"
+            android:layout_width="120dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="TextView"
+            android:textSize="18sp"
+            tools:ignore="HardcodedText"/>
+
+
+    </LinearLayout>
+
+
+</androidx.cardview.widget.CardView>

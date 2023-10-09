@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/color_coco_4"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@id/header"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/color_coco_2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tvWaitingList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginHorizontal="10dp"
+            android:gravity="center"
+            android:text="Lista rezerwowa "
+            android:textSize="34sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.222"
+            tools:ignore="HardcodedText">
+
+
+        </TextView>
+
+        <Button
+            android:id="@+id/btnNewWaitingListRecord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="Dodaj"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/infoBar"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/color_coco_1"
+        app:layout_constraintBottom_toTopOf="@id/rvCompleteWaitingList"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"/>
+
+        <TextView
+            android:id="@+id/tvWaitingListClientName"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center|start"
+            android:text="Klient:"
+            tools:ignore="HardcodedText"
+            android:textColor="@color/color_coco_0"/>
+
+        <TextView
+            android:id="@+id/tvWaitingDateStart"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:text="Od:"
+            tools:ignore="HardcodedText"
+            android:textColor="@color/color_coco_0"/>
+
+        <TextView
+            android:id="@+id/tvWaitingDateEnd"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:text="Do:"
+            tools:ignore="HardcodedText"
+            android:textColor="@color/color_coco_0"/>
+
+        <TextView
+            android:id="@+id/tvWaitingRecordNotes"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.7"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:text="Notatka:"
+            tools:ignore="HardcodedText"
+            android:textColor="@color/color_coco_0"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:text="@string/remove"
+            app:iconPadding="0dp"
+            android:textColor="@color/color_coco_0"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"/>
+
+    </LinearLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCompleteWaitingList"
+        android:layout_width="600dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:background="@color/color_coco_3"
+        android:maxHeight="100dp"
+        android:minWidth="300dp"
+        android:minHeight="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="650dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/infoBar"
+        tools:context=".database_activity.CalendarActivity"
+        tools:listitem="@layout/waiting_list_item" />
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

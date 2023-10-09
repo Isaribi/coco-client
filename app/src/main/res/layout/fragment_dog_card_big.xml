@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_coco_4"
+    android:backgroundTint="@color/color_coco_4"
+    tools:context=".database.DogCardBig">
+
+
+
+    <TextView
+        android:id="@+id/tvPhoneNumberLabel1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ivProfilePicture"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="49dp"
+        android:layout_marginTop="25dp"
+        android:minWidth="100dp"
+        android:minHeight="40dp"
+        android:text="@string/phone"
+        android:textColor="@color/color_font_color"
+        android:textSize="34sp" />
+
+    <TextView
+        android:id="@+id/tvPhoneNumber1"
+        android:layout_width="wrap_content"
+        android:layout_height="54dp"
+        android:layout_alignTop="@+id/tvPhoneNumberLabel1"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="0dp"
+        android:layout_toEndOf="@+id/tvPhoneNumberLabel1"
+        android:minWidth="100dp"
+        android:minHeight="40dp"
+        android:textColor="@color/color_font_color"
+        android:textSize="34sp" />
+
+    <TextView
+        android:id="@+id/tvPhoneNumber2"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
+        android:layout_alignTop="@+id/tvPhoneNumberLabel2"
+        android:layout_marginStart="17dp"
+        android:layout_toEndOf="@+id/tvPhoneNumberLabel2"
+        android:minWidth="100dp"
+        android:minHeight="40dp"
+        android:textSize="34sp"
+        android:textColor="@color/color_font_color"
+        />
+
+    <TextView
+        android:id="@+id/tvPhoneNumberLabel2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvPhoneNumberLabel1"
+        android:layout_alignStart="@+id/tvPhoneNumberLabel1"
+        android:layout_marginTop="25dp"
+        android:minWidth="100dp"
+        android:minHeight="40dp"
+        android:text="@string/phone"
+        android:textColor="@color/color_font_color"
+        android:textSize="34sp" />
+
+    <ImageView
+        android:id="@+id/ivProfilePicture"
+        android:layout_width="156dp"
+        android:layout_height="188dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="38dp"
+        android:layout_marginTop="42dp"
+        android:background="#FFFFFF"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/default_picture"
+        tools:src="@tools:sample/avatars" />
+
+
+    <Button
+        android:id="@+id/btnDogEdit"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/btnShowAppointments"
+        android:layout_alignBottom="@+id/btnShowAppointments"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/btnShowAppointments"
+        android:layout_marginEnd="10dp"
+        android:text="@string/edit" />
+
+    <TextView
+        android:id="@+id/tvDogID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="106dp"
+        android:layout_marginTop="14dp"
+        android:text="ID"
+        android:textSize="20sp"
+        android:textColor="@color/color_font_color"
+        tools:ignore="HardcodedText" />
+
+    <LinearLayout
+        android:id="@+id/llSameOwnerDogs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/info"
+        android:layout_marginTop="1dp"
+        android:layout_toEndOf="@+id/info"
+        android:orientation="vertical">
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvNotes"
+        android:layout_width="wrap_content"
+        android:layout_height="402dp"
+        android:layout_below="@+id/labelVisitDuration"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="58dp"
+        android:layout_marginTop="85dp"
+        android:layout_marginEnd="73dp"
+        android:background="@drawable/multiline_text_frame"
+        android:ems="10"
+        android:gravity="start|top"
+        android:hint="@string/next"
+        android:textColor="@color/color_font_color" />
+
+    <TextView
+        android:id="@+id/labelLastPayment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/labelVisitDuration"
+        android:layout_alignStart="@+id/labelVisitDuration"
+        android:layout_marginTop="25dp"
+        android:minWidth="100dp"
+        android:minHeight="45dp"
+        android:text="@string/last_payment"
+        android:textColor="@color/color_font_color"
+        android:textSize="34sp" />
+
+    <TextView
+        android:id="@+id/tvLastPayment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/labelLastPayment"
+        android:layout_marginStart="5dp"
+        android:layout_toEndOf="@+id/labelLastPayment"
+        android:minWidth="100dp"
+        android:minHeight="45dp"
+        android:textSize="34sp"
+        android:textColor="@color/color_font_color"
+        />
+
+    <TextView
+        android:id="@+id/labelVisitDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvPhoneNumberLabel2"
+        android:layout_alignStart="@+id/tvPhoneNumberLabel1"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="25dp"
+        android:minWidth="100dp"
+        android:minHeight="45dp"
+        android:text="@string/visit_duration"
+        android:textColor="@color/color_font_color"
+        android:textSize="34sp" />
+
+    <TextView
+        android:id="@+id/tvVisitDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/labelVisitDuration"
+        android:layout_marginStart="5dp"
+        android:layout_toEndOf="@+id/labelVisitDuration"
+        android:minWidth="100dp"
+        android:minHeight="48dp"
+        android:textColor="@color/color_font_color"
+        android:textSize="34sp"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <LinearLayout
+        android:id="@+id/info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvDogID"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="0dp"
+        android:layout_toEndOf="@+id/ivProfilePicture"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvDogName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:minWidth="15dp"
+            android:minHeight="40dp"
+            android:text="Name"
+            android:textColor="@color/color_font_color"
+            android:textSize="34sp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tvDogPseudonym"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:minWidth="100dp"
+            android:minHeight="40dp"
+            android:text="Pseudonym"
+            android:textColor="@color/color_font_color"
+            android:textSize="34sp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tvDogBreed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autoSizeTextType="uniform"
+            android:minWidth="100dp"
+            android:maxWidth="150dp"
+            android:minHeight="40dp"
+            android:text="Breed"
+            android:textColor="@color/color_font_color"
+            android:textSize="34sp"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnShowAppointments"
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:layout_below="@+id/tvNotes"
+        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:backgroundTint="@color/color_coco_2"
+        android:text="@string/visits" />
+
+
+</RelativeLayout>

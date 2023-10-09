@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="2dp"
+    app:barrierMargin="2dp"
+    app:cardBackgroundColor="@color/color_coco_4"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="5dp"
+    app:contentPadding="1dp"
+    app:contentPaddingRight="5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tvWaitingListClientName"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center|start"
+            android:text="ClientName"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tvWaitingDateStart"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="DD.MM"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tvWaitingDateEnd"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="DD.MM"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tvWaitingRecordNotes"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:text="Notatka na 25 znaków..."
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/btnDeleteWaitingListRecord"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:backgroundTint="@color/design_default_color_error"
+            android:drawablePadding="5dp"
+            android:gravity="center"
+            android:textSize="8sp"
+            app:cornerRadius="50dp"
+            app:icon="@android:drawable/ic_delete"
+            app:iconGravity="textEnd"
+            app:iconPadding="0dp" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/color_coco_4"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="NAME"
+        android:textSize="34sp"
+        android:gravity="center"
+        android:background="@color/color_coco_1"
+        android:textColor="@color/color_coco_0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/rvShowAppointments"
+        tools:ignore="HardcodedText">
+
+    </TextView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvShowAppointments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="16dp"
+        android:background="@color/color_coco_3"
+        android:maxHeight="100dp"
+        android:minWidth="300dp"
+        android:minHeight="100dp"
+        app:layout_constraintHeight_max="650dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvName"
+        tools:context="com.ndurska.coco_client.database.DatabaseActivity"
+        tools:listitem="@layout/appointment_item" />
+
+
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

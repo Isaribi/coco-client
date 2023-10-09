@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/dog_database"
+        android:icon="@drawable/ic_dog_database"
+        android:title="@string/dogs"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/calendar"
+        android:icon="@drawable/ic_calendar"
+        android:title="@string/calendar"
+        app:showAsAction="ifRoom"
+  />
+    <item
+        android:id="@+id/summary"
+        android:icon="?android:attr/actionModeFindDrawable"
+        android:title="@string/summary"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/send_text_reminders"
+        android:icon="@drawable/ic_send_text_reminders"
+        android:title="@string/send_text_reminders"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/waiting_list"
+        android:icon="@drawable/ic_waiting_list"
+        android:title="@string/waiting_list"
+        app:showAsAction="ifRoom"
+        />
+    <item
+        android:id="@+id/month_summary"
+        android:icon="@drawable/ic_stats"
+        android:title="Podsumowanie miesiąca"
+        app:showAsAction="ifRoom"
+        />
+
+</menu>

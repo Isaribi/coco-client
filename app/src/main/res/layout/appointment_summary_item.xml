@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="2dp"
+    app:barrierMargin="2dp"
+    app:cardBackgroundColor="@color/color_coco_4"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="5dp"
+    app:contentPadding="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/tvSummaryTime"
+            android:layout_width="50dp"
+            android:gravity="center|start"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="15dp"/>
+
+        <TextView
+            android:id="@+id/tvSummaryClientName"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center|start"
+            android:text="ClientName"
+            tools:ignore="HardcodedText" />
+
+        <EditText
+            android:id="@+id/etPayment"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:ems="10"
+            android:inputType="number" />
+
+        <CheckBox
+            android:id="@+id/cbAbsent"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="40dp"
+/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

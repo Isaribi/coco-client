@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_coco_4"
+    tools:context=".calendar_activity.CalendarDay">
+
+
+    <TextView
+        android:id="@+id/header"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:background="@color/color_coco_2"
+        android:gravity="center"
+        android:text="Day of the week and date"
+        app:layout_constraintBottom_toTopOf="@+id/llHours"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_weight="0.05"
+        tools:ignore="HardcodedText" />
+
+    <LinearLayout
+        android:id="@+id/llHours"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/llLabels"
+        app:layout_constraintHorizontal_weight="0.16"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintVertical_weight="0.95">
+
+
+        <TextView
+            android:id="@+id/time900"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_9_am"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform"
+            android:background="@color/opaque_light_gray"/>
+
+        <TextView
+            android:id="@+id/time930"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_9_30am"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform"
+            android:background="@color/opaque_light_gray"/>
+
+        <TextView
+            android:id="@+id/time1000"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_10_am"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1030"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/_10_30am"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1100"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_11_am"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1130"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_11_30am"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1200"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_12_pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1230"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_12_30pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1300"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_1_pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1330"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_1_30pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1400"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_2_pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1430"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_2_30pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1500"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_3_pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1530"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_3_30pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1600"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_4_pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1630"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_4_30pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1700"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_5_pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform" />
+
+        <TextView
+            android:id="@+id/time1730"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_5_30pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform"
+            android:background="@color/opaque_light_gray"/>
+
+        <TextView
+            android:id="@+id/time1800"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_6_pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform"
+            android:background="@color/opaque_light_gray"/>
+
+        <TextView
+            android:id="@+id/time1830"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_6_30pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform"
+            android:background="@color/opaque_light_gray"/>
+
+        <TextView
+            android:id="@+id/time1900"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_7_00pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform"
+            android:background="@color/opaque_light_gray"/>
+
+        <TextView
+            android:id="@+id/time1930"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/_7_30pm"
+            android:gravity="center_vertical"
+            app:autoSizeTextType="uniform"
+            android:background="@color/opaque_light_gray"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llLabels"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header"
+        app:layout_constraintStart_toEndOf="@id/llHours"
+        app:layout_constraintVertical_weight="0.95"
+        app:layout_constraintHorizontal_weight="0.85"
+        android:orientation="vertical">
+
+
+
+
+
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

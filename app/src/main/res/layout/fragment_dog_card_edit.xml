@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_coco_4"
+    android:backgroundTint="@color/color_coco_4"
+    tools:context=".database.DogCardBig">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+
+            <EditText
+                android:id="@+id/etPhoneNumberLabel1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ivProfilePicture"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="49dp"
+                android:layout_marginTop="25dp"
+                android:background="@null"
+                android:minWidth="100dp"
+                android:minHeight="40dp"
+                android:text="@string/phone"
+                android:textSize="34sp"
+                android:inputType="textCapWords"/>
+
+            <EditText
+                android:id="@+id/etPhoneNumber1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/etPhoneNumberLabel1"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="0dp"
+                android:layout_toEndOf="@+id/etPhoneNumberLabel1"
+                android:background="@null"
+                android:inputType="phone"
+                android:minWidth="100dp"
+                android:minHeight="40dp"
+                android:textSize="34sp"
+                tools:ignore="SpeakableTextPresentCheck"
+/>
+
+            <EditText
+                android:id="@+id/etPhoneNumber2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/etPhoneNumberLabel2"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="17dp"
+                android:layout_marginEnd="0dp"
+                android:layout_toEndOf="@+id/etPhoneNumberLabel2"
+                android:background="@null"
+                android:inputType="phone"
+                android:minWidth="100dp"
+                android:minHeight="40dp"
+                android:textSize="30sp" />
+
+            <EditText
+                android:id="@+id/etPhoneNumberLabel2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/etPhoneNumberLabel1"
+                android:layout_alignStart="@+id/etPhoneNumberLabel1"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="25dp"
+                android:background="@null"
+                android:minWidth="32dp"
+                android:minHeight="40dp"
+                android:text="@string/phone"
+                android:textSize="34sp"
+                android:inputType="textCapWords"/>
+
+            <ImageView
+                android:id="@+id/ivProfilePicture"
+                android:layout_width="156dp"
+                android:layout_height="188dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="38dp"
+                android:layout_marginTop="42dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="@drawable/edit_picture_foreground"
+                android:scaleType="fitXY"
+
+                app:srcCompat="@drawable/default_picture" />
+
+            <TextView
+                android:id="@+id/ivText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/ivProfilePicture"
+                android:layout_alignTop="@+id/ivProfilePicture"
+                android:layout_alignEnd="@+id/ivProfilePicture"
+                android:layout_alignBottom="@+id/ivProfilePicture"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="5dp"
+                android:gravity="center"
+                android:text="@string/choose_photo"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+
+            <Button
+                android:id="@+id/btnDeletePicture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/ivProfilePicture"
+                android:layout_alignEnd="@+id/ivProfilePicture"
+                android:backgroundTint="@color/design_default_color_error"
+                android:scaleX="0.8"
+                app:icon="@android:drawable/ic_delete"
+                app:iconGravity="textEnd"
+                app:iconPadding="0dp" />
+
+            <EditText
+                android:id="@+id/etDogName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="19dp"
+                android:layout_marginTop="32dp"
+                android:layout_toEndOf="@+id/ivProfilePicture"
+                android:background="@null"
+                android:hint="@string/name"
+                android:minWidth="15dp"
+                android:minHeight="40dp"
+                android:textSize="34sp"
+                android:inputType="textCapWords"/>
+
+            <EditText
+                android:id="@+id/etDogPseudonym"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/etDogName"
+                android:layout_alignStart="@+id/etDogName"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="11dp"
+                android:background="@null"
+                android:hint="@string/adjective"
+                android:minWidth="100dp"
+                android:minHeight="40dp"
+                android:textSize="34sp"
+                android:inputType="textCapWords"/>
+
+            <EditText
+                android:id="@+id/etDogBreed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/etDogPseudonym"
+                android:layout_alignStart="@+id/etDogPseudonym"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="11dp"
+                android:background="@null"
+                android:hint="@string/breed"
+                android:inputType="textCapWords"
+                android:minWidth="100dp"
+                android:minHeight="40dp"
+                android:textSize="34sp" />
+
+            <Button
+                android:id="@+id/btnSaveChanges"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="21dp"
+                android:layout_marginEnd="20dp"
+                android:text="@string/save" />
+
+            <Button
+                android:id="@+id/btnDeleteDog"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="948dp"
+                android:backgroundTint="@color/design_default_color_error"
+                android:text="@string/delete" />
+
+            <TextView
+                android:id="@+id/tvDogID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="106dp"
+                android:layout_marginTop="14dp"
+                android:text="ID"
+                android:textSize="20sp"
+                tools:ignore="HardcodedText" />
+
+
+            <EditText
+                android:id="@+id/etNotes"
+                android:layout_width="wrap_content"
+                android:layout_height="402dp"
+                android:layout_below="@+id/labelVisitDuration"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="58dp"
+                android:layout_marginTop="85dp"
+                android:layout_marginEnd="73dp"
+                android:background="@drawable/multiline_text_frame"
+                android:ems="10"
+                android:gravity="start|top"
+                android:inputType="textMultiLine" />
+
+            <TextView
+                android:id="@+id/labelVisitDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/etPhoneNumberLabel2"
+                android:layout_alignStart="@+id/etPhoneNumberLabel2"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="25dp"
+                android:minWidth="100dp"
+                android:minHeight="45dp"
+                android:text="@string/visit_duration"
+                android:textColor="@color/color_font_color"
+                android:textSize="34sp" />
+
+            <EditText
+                android:id="@+id/tvVisitDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="52dp"
+                android:layout_alignTop="@+id/labelVisitDuration"
+                android:layout_alignBottom="@+id/labelVisitDuration"
+                android:layout_marginStart="5dp"
+                android:layout_toEndOf="@+id/labelVisitDuration"
+                android:background="@null"
+                android:inputType="number"
+                android:minWidth="100dp"
+                android:minHeight="45dp"
+                android:text="90"
+                android:textSize="34sp"
+                tools:ignore="HardcodedText" />
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

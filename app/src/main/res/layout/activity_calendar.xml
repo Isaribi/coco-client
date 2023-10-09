@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".calendar_activity.CalendarActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="-4dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clMonday"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/clTuesday"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.0"/>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clTuesday"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/clMonday"
+        app:layout_constraintEnd_toStartOf="@id/clWednesday"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.0">
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clWednesday"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/clTuesday"
+        app:layout_constraintEnd_toStartOf="@id/clThursday"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.0">
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clThursday"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/clWednesday"
+        app:layout_constraintEnd_toStartOf="@id/clFriday"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.0">
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clFriday"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/clSaturday"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/clThursday"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.0">
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clSaturday"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/clFriday"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.0">
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/tvMonthYear"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:minWidth="200dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:autoSizeTextType="uniform"
+        android:gravity="center"
+        android:textColor="@color/color_coco_0"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+        app:layout_constraintEnd_toEndOf="@+id/toolbar"
+        app:layout_constraintStart_toStartOf="@+id/toolbar"
+        app:layout_constraintTop_toTopOf="@+id/toolbar" />
+
+    <Button
+        android:id="@+id/btnNextWeek"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/right_arrow"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+        app:layout_constraintStart_toEndOf="@+id/tvMonthYear"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnNextMonth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/right_double_arrow"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+        app:layout_constraintStart_toEndOf="@+id/btnNextWeek"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnPrevWeek"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/left_arrow"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+        app:layout_constraintEnd_toStartOf="@+id/tvMonthYear"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnPrevMonth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/left_double_arrow"
+        app:layout_constraintBottom_toBottomOf="@+id/btnPrevWeek"
+        app:layout_constraintEnd_toStartOf="@+id/btnPrevWeek" />
+
+    <ImageButton
+        android:id="@+id/ibWaitingListForShownWeek"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/round_button"
+        app:layout_constraintBottom_toTopOf="@+id/clMonday"
+        app:layout_constraintStart_toEndOf="@id/tvWaitingListPreviewForShownWeek"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_exclamation_mark" />
+
+    <TextView
+        android:id="@+id/tvWaitingListPreviewForShownWeek"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textColor="@color/color_coco_4"
+        app:layout_constraintBottom_toBottomOf="@+id/ibWaitingListForShownWeek"
+        app:layout_constraintEnd_toStartOf="@+id/btnPrevMonth"
+        app:layout_constraintStart_toStartOf="@+id/toolbar"
+        app:layout_constraintTop_toTopOf="@+id/ibWaitingListForShownWeek" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

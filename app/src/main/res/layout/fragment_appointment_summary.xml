@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_coco_3"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@color/color_coco_2">
+
+                <TextView
+                    android:id="@+id/tvRemindersDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="DATE"
+                    android:textSize="34sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="HardcodedText">
+
+                </TextView>
+                <Button
+                    android:id="@+id/btnNextDay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="@string/right_arrow"
+                    app:layout_constraintStart_toEndOf="@+id/tvRemindersDate"
+                    app:layout_constraintTop_toTopOf="@+id/tvRemindersDate" />
+
+                <Button
+                    android:id="@+id/btnPrevDay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/left_arrow"
+                    app:layout_constraintEnd_toStartOf="@+id/tvRemindersDate"
+                    app:layout_constraintTop_toTopOf="@+id/tvRemindersDate" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/color_coco_1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/constraintLayout">
+
+
+                <TextView
+                    android:id="@+id/tvWaitingDateStart"
+                    android:layout_width="65dp"
+                    android:layout_height="match_parent"
+
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="center"
+                    android:text="Godzina:"
+                    tools:ignore="HardcodedText"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginStart="5dp"
+                    android:textColor="@color/color_coco_0"/>
+
+                <TextView
+                    android:id="@+id/tvWaitingListClientName"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="center|start"
+                    android:text="Klient:"
+                    tools:ignore="HardcodedText"
+                    android:textColor="@color/color_coco_0"/>
+
+
+                <TextView
+                    android:id="@+id/tvPayment"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="20dp"
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="center"
+                    android:text="Zapłacono:"
+                    tools:ignore="HardcodedText"
+                    android:textColor="@color/color_coco_0"/>
+
+                <TextView
+                    android:id="@+id/tvAbsence"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="center"
+                    android:text="Nie pojawił się"
+                    android:layout_marginHorizontal="5dp"
+
+                    android:textColor="@color/color_coco_0"/>
+
+
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSummary"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/color_coco_3"
+            android:minHeight="100dp"
+            app:layoutManager="LinearLayoutManager"
+            app:layout_constraintBottom_toTopOf="@+id/btnSummarySave"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/header"
+            tools:context=".summary_activity.AppointmentSummaryFragment"
+            tools:listitem="@layout/appointment_summary_item" />
+
+
+        <Button
+            android:id="@+id/btnSummarySave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/save"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/textView2"
+            app:layout_constraintStart_toEndOf="@+id/textView2"
+            app:layout_constraintTop_toTopOf="@+id/textView2"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/sum"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/btnSummarySave"
+            app:layout_constraintEnd_toStartOf="@+id/tvTotal"
+            app:layout_constraintStart_toEndOf="@+id/btnSummarySave"
+            app:layout_constraintTop_toTopOf="@+id/btnSummarySave" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
