@@ -104,4 +104,5 @@
     <string name="no_return">Nie, cofnij</string>
     <string name="ok">OK</string>
     <string name="lock_day_prompt">Zamknąć na cały dzień?</string>
+    <string name="servicedesc">Serwis costam kangurek kao</string>
 </resources>

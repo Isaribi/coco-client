@@ -1,7 +1,10 @@
 package com.ndurska.coco_client.database;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Editable;
@@ -26,7 +29,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ndurska.coco_client.R;
 import com.ndurska.coco_client.shared.ChooseDogAdapter;
+import com.ndurska.coco_client.shared.DogBroadcastReceiver;
 import com.ndurska.coco_client.shared.DogFilter;
+import com.ndurska.coco_client.shared.DogIntentService;
 import com.ndurska.coco_client.shared.RequestDispatcher;
 import com.ndurska.coco_client.shared.TextWatcherAdapter;
 
@@ -49,27 +54,32 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
     private Button btnDogAdd;
     private Toolbar toolbar;
 
+    private BroadcastReceiver receiver = new DogBroadcastReceiver();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         setContentView(R.layout.database_activity);
-        requestDispatcher = new RequestDispatcher(getApplicationContext());
-        executorService.execute(
-                () -> {
-                    dogs = requestDispatcher.getDogs();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            createDogListAdapter();
-
-                        }
-                    });
-
-                }
-        );
+        registerReceiver(receiver, new IntentFilter("FILTER_ACTION"));
+        DogIntentService service = new DogIntentService("dododo");
+        startService(new Intent(getApplicationContext(), DogIntentService.class));
+//        requestDispatcher = new RequestDispatcher(getApplicationContext());
+//        executorService.execute(
+//                () -> {
+//                    dogs = requestDispatcher.getDogs();
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//
+//                            createDogListAdapter();
+//
+//                        }
+//                    });
+//
+//                }
+//        );
         displayDogIfRequested();
         checkForSMSPermission();
         findViews();
@@ -252,6 +262,8 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
         bottomBar.setVisibility(View.VISIBLE);
         this.activeDogPosition = adapter.clickedPosition;
     }
+
+
 
 
 }
