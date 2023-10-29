@@ -85,7 +85,7 @@ public class DogCardEdit extends Fragment {
 
     ActivityResultLauncher<Intent> imagePickerActivityResult = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
+            new ActivityResultCallback<>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
@@ -132,14 +132,14 @@ public class DogCardEdit extends Fragment {
         args.putString(ARG_NAME, dog.getName());
         args.putString(ARG_PSEUDONYM, dog.getPseudonym());
         args.putString(ARG_BREED, dog.getBreed());
-//        args.putString(ARG_PHONE_NUMBER1, dog.getContactNameList().get(0).phoneNumber);
-//        args.putString(ARG_PHONE_NUMBER2, dog.getContactNameList().get(1).phoneNumber);
-//        args.putString(ARG_PHONE_NUMBER_lABEL_1, dog.getContactNameList().get(0).contactName);
-//        args.putString(ARG_PHONE_NUMBER_LABEL_2, dog.getContactNameList().get(1).contactName);
+        args.putString(ARG_PHONE_NUMBER1, dog.getPhoneNumber1());
+        args.putString(ARG_PHONE_NUMBER2, dog.getPhoneNumber2());
+        args.putString(ARG_PHONE_NUMBER_lABEL_1, dog.getPhoneNumberLabel1());
+        args.putString(ARG_PHONE_NUMBER_LABEL_2, dog.getPhoneNumberLabel2());
         args.putInt(ARG_LAST_PAYMENT, dog.getLastPaidAmount());
         args.putInt(ARG_EXPECTED_VISIT_DURATION, dog.getExpectedAppointmentDuration());
         args.putString(ARG_NOTES, dog.getAdditionalInfo());
-        args.putString(ARG_PHOTO_PATH, dog.getPhotoPath());
+        args.putString(ARG_PHOTO_PATH, dog.getPhotoUUID());
         fragment.setArguments(args);
         return fragment;
     }
@@ -278,8 +278,11 @@ public class DogCardEdit extends Fragment {
                     listener.onBtnSaveClicked(false);
                 } else {
                     getDogInfoFromViews();
-                    saveDogToDatabase();
-                    listener.onBtnSaveClicked(true);
+                    DatabaseActivity.executorService.execute(
+                            () -> {
+                                saveDogToDatabase();
+                                listener.onBtnSaveClicked(true);
+                            });
                 }
             }
         });
@@ -329,7 +332,7 @@ public class DogCardEdit extends Fragment {
     private void saveDogEdits() {
         try {
             getDogInfoFromViews();
-            dog.setPhotoPath(photoUUID);
+            dog.setPhotoUUID(photoUUID);
             activity.setActiveDog(requestDispatcher.getDog((int) dog.getId()));
             boolean success = requestDispatcher.editDog(dog);
             if (success)
@@ -345,25 +348,29 @@ public class DogCardEdit extends Fragment {
         dog.setName(etDogName.getText().toString());
         dog.setPseudonym(etDogPseudonym.getText().toString());
         dog.setBreed(etDogBreed.getText().toString());
-//        dog.setPhoneNumber1(etPhoneNumber1.getText().toString());
-//        dog.setPhoneNumber2(etPhoneNumber2.getText().toString());
-//        dog.setPhoneNumberLabel1(etPhoneNumberLabel1.getText().toString());
-//        dog.setPhoneNumberLabel2(etPhoneNumberLabel2.getText().toString());
+        dog.setPhoneNumber1(etPhoneNumber1.getText().toString());
+        dog.setPhoneNumber2(etPhoneNumber2.getText().toString());
+        dog.setPhoneNumberLabel1(etPhoneNumberLabel1.getText().toString());
+        dog.setPhoneNumberLabel2(etPhoneNumberLabel2.getText().toString());
         ivPhoto.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.default_picture));
-//        if (etExpectedVisitDuration.getText().length() == 0)
-//            dog.setExpectedVisitDuration(90);
-//        else
-//            dog.setExpectedVisitDuration(Integer.parseInt(etExpectedVisitDuration.getText().toString()));
-//        dog.setAdditionalInfo(etNotes.getText().toString());
+        if (etExpectedVisitDuration.getText().length() == 0)
+            dog.setExpectedAppointmentDuration(90);
+        else
+            dog.setExpectedAppointmentDuration(Integer.parseInt(etExpectedVisitDuration.getText().toString()));
+        dog.setAdditionalInfo(etNotes.getText().toString());
     }
 
     private void saveDogToDatabase() {
-        int dogId = requestDispatcher.addDog(dog).getId();
-        activity.setActiveDog(requestDispatcher.getDog((int) dogId));
+        DogDto savedDog = requestDispatcher.addDog(dog);
+        int dogId = savedDog.getId();
+        dog.setId(dogId);
+        activity.setActiveDog(dog);
+        String toastText;
         if (dogId != -1)
-            Toast.makeText(getActivity(), R.string.dog_saved, Toast.LENGTH_SHORT).show();
+            toastText = R.string.dog_saved + "";
         else
-            Toast.makeText(getActivity(), R.string.dog_not_saved + "", Toast.LENGTH_SHORT).show();
+            toastText = R.string.dog_not_saved + "";
+        activity.runOnUiThread(() -> Toast.makeText(getActivity(), toastText, Toast.LENGTH_SHORT).show());
     }
 
     @Override

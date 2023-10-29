@@ -104,21 +104,19 @@ public class DogCardBig extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-//            dog = (Dog) getArguments().getSerializable("dog");
-//            ID = dog.getId();
-//            name = dog.getName();
-//            adjective = dog.getPseudonym();
-//            breed = dog.getBreed();
-//            phoneNumber1 = dog.getPhoneNumber1();
-//            phoneNumber2 = dog.getPhoneNumber2();
-//            phoneNumberLabel1 = dog.getPhoneNumberLabel1();
-//            phoneNumberLabel2 = dog.getPhoneNumberLabel2();
-//            expectedVisitDuration = dog.getExpectedVisitDuration();
-//            notes = dog.getAdditionalInfo();
-//            photoPath = dog.getPhotoUUID();
-
+            dog = (DogDto) getArguments().getSerializable("dog");
+            ID = dog.getId();
+            name = dog.getName();
+            adjective = dog.getPseudonym();
+            breed = dog.getBreed();
+            phoneNumber1 = dog.getPhoneNumber1();
+            phoneNumber2 = dog.getPhoneNumber2();
+            phoneNumberLabel1 = dog.getPhoneNumberLabel1();
+            phoneNumberLabel2 = dog.getPhoneNumberLabel2();
+            expectedVisitDuration = dog.getExpectedAppointmentDuration();
+            notes = dog.getAdditionalInfo();
+            photoPath = dog.getPhotoUUID();
         }
-
     }
 
     @Override

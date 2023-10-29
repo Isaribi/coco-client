@@ -49,32 +49,25 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
     private Button btnDogAdd;
     private Toolbar toolbar;
 
+    public static ExecutorService executorService;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ExecutorService executorService = Executors.newFixedThreadPool(4);
+        executorService = Executors.newFixedThreadPool(4);
         setContentView(R.layout.database_activity);
         requestDispatcher = new RequestDispatcher(getApplicationContext());
         executorService.execute(
                 () -> {
                     dogs = requestDispatcher.getDogs();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            createDogListAdapter();
-
-                        }
-                    });
-
+                    runOnUiThread(this::createDogListAdapter);
                 }
         );
         displayDogIfRequested();
         checkForSMSPermission();
         findViews();
         setSupportActionBar(toolbar);
-//        createDogListAdapter();
         setListeners();
     }
 
@@ -182,15 +175,19 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
     @Override
     public void onBtnSaveClicked(boolean isNewDog) {
 
-        dogs = requestDispatcher.getDogs();
+//        executorService.execute(
+//                () -> {
+                    dogs = requestDispatcher.getDogs();
+                    runOnUiThread(this::createDogListAdapter);
 
+    //            }
+   //     );
         DogCardBig dogCardBig = DogCardBig.newInstance(activeDog);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.placeholder, dogCardBig).commit();
-
-        adapter = new ChooseDogAdapter(dogs, DatabaseActivity.this);
-        rvDogList.setAdapter(adapter);
-        bottomBar.setVisibility(View.VISIBLE);
+        //adapter = new ChooseDogAdapter(dogs, DatabaseActivity.this);
+        //rvDogList.setAdapter(adapter);
+        runOnUiThread(()->bottomBar.setVisibility(View.VISIBLE));
 
         if (getCallingActivity() != null) {
             Intent intent = getIntent();
@@ -232,7 +229,7 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.placeholder, dogCardBig).commit();
         for (DogDto c : dogs)
-            if (c.getId() == dog.getId()) {
+            if (Objects.equals(c.getId(), dog.getId())) {
                 setActiveDogPosition(dogs.indexOf(c));
                 adapter.setClickedDog(c);
             }

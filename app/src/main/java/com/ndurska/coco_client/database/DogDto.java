@@ -8,27 +8,34 @@ public class DogDto implements Serializable {
     String name;
     String pseudonym;
     String breed;
-    List<ContactNameAndPhoneNumberDTO> contactNameList;
+    String phoneNumber1;
+    String phoneNumber2;
+    String phoneNumberLabel1;
+    String phoneNumberLabel2;
     int expectedAppointmentDuration;
     int lastPaidAmount;
     String additionalInfo;
-    String photoPath;
+    String photoUUID;
 
     public DogDto(){}
 
-    public DogDto(Integer id, String name, String pseudonym, String breed, List<ContactNameAndPhoneNumberDTO> contactNameList, int expectedAppointmentDuration, int lastPaidAmount, String additionalInfo, String photoPath) {
+    public DogDto(Integer id, String name, String pseudonym, String breed, String phoneNumber1, String phoneNumber2, String phoneNumberLabel1, String phoneNumberLabel2, int expectedAppointmentDuration, int lastPaidAmount, String additionalInfo, String photoUUID) {
         this.id = id;
         this.name = name;
         this.pseudonym = pseudonym;
         this.breed = breed;
-        this.contactNameList = contactNameList;
+        this.phoneNumber1 = phoneNumber1;
+        this.phoneNumber2 = phoneNumber2;
+        this.phoneNumberLabel1 = phoneNumberLabel1;
+        this.phoneNumberLabel2 = phoneNumberLabel2;
         this.expectedAppointmentDuration = expectedAppointmentDuration;
         this.lastPaidAmount = lastPaidAmount;
         this.additionalInfo = additionalInfo;
-        this.photoPath = photoPath;
+        this.photoUUID = photoUUID;
     }
+
     public String toStringShort() {
-        return name + " " + pseudonym + " " + breed + " " + contactNameList.get(0).phoneNumber + " " + contactNameList.get(0).phoneNumber;
+        return name + " " + pseudonym + " " + breed + " " + phoneNumber1 + " " + phoneNumber2;
     }
 
     public Integer getId() {
@@ -63,12 +70,36 @@ public class DogDto implements Serializable {
         this.breed = breed;
     }
 
-    public List<ContactNameAndPhoneNumberDTO> getContactNameList() {
-        return contactNameList;
+    public String getPhoneNumber1() {
+        return phoneNumber1;
     }
 
-    public void setContactNameList(List<ContactNameAndPhoneNumberDTO> contactNameList) {
-        this.contactNameList = contactNameList;
+    public void setPhoneNumber1(String phoneNumber1) {
+        this.phoneNumber1 = phoneNumber1;
+    }
+
+    public String getPhoneNumber2() {
+        return phoneNumber2;
+    }
+
+    public void setPhoneNumber2(String phoneNumber2) {
+        this.phoneNumber2 = phoneNumber2;
+    }
+
+    public String getPhoneNumberLabel1() {
+        return phoneNumberLabel1;
+    }
+
+    public void setPhoneNumberLabel1(String phoneNumberLabel1) {
+        this.phoneNumberLabel1 = phoneNumberLabel1;
+    }
+
+    public String getPhoneNumberLabel2() {
+        return phoneNumberLabel2;
+    }
+
+    public void setPhoneNumberLabel2(String phoneNumberLabel2) {
+        this.phoneNumberLabel2 = phoneNumberLabel2;
     }
 
     public int getExpectedAppointmentDuration() {
@@ -95,11 +126,11 @@ public class DogDto implements Serializable {
         this.additionalInfo = additionalInfo;
     }
 
-    public String getPhotoPath() {
-        return photoPath;
+    public String getPhotoUUID() {
+        return photoUUID;
     }
 
-    public void setPhotoPath(String photoPath) {
-        this.photoPath = photoPath;
+    public void setPhotoUUID(String photoUUID) {
+        this.photoUUID = photoUUID;
     }
 }
