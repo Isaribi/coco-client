@@ -33,6 +33,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:description="@string/servicedesc"
+            android:name=".shared.DogIntentService">
+        </service>
+        <receiver android:name=".database.DatabaseActivity$DogBroadcastReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="FILTER_ACTION" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
