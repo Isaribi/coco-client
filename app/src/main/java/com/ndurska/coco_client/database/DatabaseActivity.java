@@ -177,17 +177,17 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
 
 //        executorService.execute(
 //                () -> {
-                    dogs = requestDispatcher.getDogs();
-                    runOnUiThread(this::createDogListAdapter);
+        dogs = requestDispatcher.getDogs();
+        runOnUiThread(this::createDogListAdapter);
 
-    //            }
-   //     );
+        //            }
+        //     );
         DogCardBig dogCardBig = DogCardBig.newInstance(activeDog);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.placeholder, dogCardBig).commit();
         //adapter = new ChooseDogAdapter(dogs, DatabaseActivity.this);
         //rvDogList.setAdapter(adapter);
-        runOnUiThread(()->bottomBar.setVisibility(View.VISIBLE));
+        runOnUiThread(() -> bottomBar.setVisibility(View.VISIBLE));
 
         if (getCallingActivity() != null) {
             Intent intent = getIntent();
@@ -205,14 +205,15 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
             ft.remove(Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.placeholder))).commit();
 
             if (!isNewDog) {
-                dogs = requestDispatcher.getDogs();
-                adapter.items.remove(activeDogPosition);
-                adapter.notifyItemRemoved(activeDogPosition);
+                runOnUiThread(() -> {
+                    adapter.items.remove(activeDogPosition);
+                    adapter.notifyItemRemoved(activeDogPosition);
+                });
             }
         } catch (Exception e) {
-            Toast.makeText(DatabaseActivity.this, R.string.delete_dog_exception + "" + e, Toast.LENGTH_SHORT).show();
+            runOnUiThread(() -> Toast.makeText(DatabaseActivity.this, R.string.delete_dog_exception + "" + e, Toast.LENGTH_SHORT).show());
         }
-        bottomBar.setVisibility(View.VISIBLE);
+        runOnUiThread(() -> bottomBar.setVisibility(View.VISIBLE));
     }
 
     @Override

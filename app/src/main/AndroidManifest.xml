@@ -14,16 +14,8 @@
         android:theme="@style/Theme.CocoClient"
         tools:targetApi="31"
         android:usesCleartextTraffic="true">
-
-<!--        <activity-->
-<!--            android:name=".database.DatabaseActivity"-->
-<!--            android:configChanges="orientation|keyboardHidden"-->
-<!--            android:exported="true"-->
-<!--            android:screenOrientation="portrait"-->
-<!--            tools:ignore="LockedOrientationActivity"-->
-<!--            android:theme="@style/Theme.CocoClient.NoActionBar"/>-->
         <activity
-            android:name=".database.DatabaseActivity"
+            android:name=".calendar.CalendarActivity"
             android:exported="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.CocoClient.NoActionBar">
@@ -33,15 +25,33 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service
-            android:description="@string/servicedesc"
-            android:name=".shared.DogIntentService">
-        </service>
-        <receiver android:name=".database.DatabaseActivity$DogBroadcastReceiver" android:exported="false">
-            <intent-filter>
-                <action android:name="FILTER_ACTION" />
-            </intent-filter>
-        </receiver>
+        <activity
+            android:name=".database.DatabaseActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity"
+            android:theme="@style/Theme.CocoClient.NoActionBar"/>
+<!--        <activity-->
+<!--            android:name=".database.DatabaseActivity"-->
+<!--            android:exported="true"-->
+<!--            android:screenOrientation="portrait"-->
+<!--            android:theme="@style/Theme.CocoClient.NoActionBar">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+<!--        <service-->
+<!--            android:description="@string/servicedesc"-->
+<!--            android:name=".shared.DogIntentService">-->
+<!--        </service>-->
+<!--        <receiver android:name=".database.DatabaseActivity$DogBroadcastReceiver" android:exported="false">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="FILTER_ACTION" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
     </application>
 
 </manifest>

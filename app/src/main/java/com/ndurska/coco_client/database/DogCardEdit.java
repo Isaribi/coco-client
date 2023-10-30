@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -274,30 +275,34 @@ public class DogCardEdit extends Fragment {
         btnSaveChanges.setOnClickListener(view13 -> {
             if (dogInfoIsValid()) {
                 if (isDogInDatabase()) {
-                    saveDogEdits();
-                    listener.onBtnSaveClicked(false);
+                    DatabaseActivity.executorService.execute(() -> {
+                        saveDogEdits();
+                        listener.onBtnSaveClicked(false);
+                    });
                 } else {
                     getDogInfoFromViews();
-                    DatabaseActivity.executorService.execute(
-                            () -> {
-                                saveDogToDatabase();
-                                listener.onBtnSaveClicked(true);
-                            });
+                    DatabaseActivity.executorService.execute(() -> {
+                        saveDogToDatabase();
+                        listener.onBtnSaveClicked(true);
+                    });
                 }
             }
         });
 
         btnDeleteDog.setOnClickListener(view1 -> {
-            if (isDogInDatabase()) {
-                try {
-                    requestDispatcher.deleteDog(dog.getId());
-                } catch (Exception e) {
-                    Toast.makeText(activity, R.string.delete_dog_exception + "", Toast.LENGTH_SHORT).show();
+            DatabaseActivity.executorService.execute(() -> {
+                if (isDogInDatabase()) {
+                    try {
+                        requestDispatcher.deleteDog(dog.getId());
+                    } catch (Exception e) {
+                        Log.println(Log.ERROR, "del", e.toString());
+                        Toast.makeText(activity, R.string.delete_dog_exception + "", Toast.LENGTH_SHORT).show();
+                    }
+                    listener.onBtnDeleteClicked(false);
+                } else {
+                    listener.onBtnDeleteClicked(true);
                 }
-                listener.onBtnDeleteClicked(false);
-            } else {
-                listener.onBtnDeleteClicked(true);
-            }
+            });
         });
 
         ivPhoto.setOnClickListener(view1 -> {
@@ -333,14 +338,12 @@ public class DogCardEdit extends Fragment {
         try {
             getDogInfoFromViews();
             dog.setPhotoUUID(photoUUID);
-            activity.setActiveDog(requestDispatcher.getDog((int) dog.getId()));
-            boolean success = requestDispatcher.editDog(dog);
-            if (success)
-                Toast.makeText(getActivity(), R.string.dog_changes_saved, Toast.LENGTH_SHORT).show();
-            else
-                Toast.makeText(getActivity(), R.string.dog_changes_not_saved, Toast.LENGTH_SHORT).show();
+            DogDto editedDog = requestDispatcher.editDog(dog);
+            activity.setActiveDog(editedDog);
+            activity.runOnUiThread(() -> Toast.makeText(getActivity(), R.string.dog_changes_saved, Toast.LENGTH_SHORT).show());
+            activity.runOnUiThread(() -> Toast.makeText(getActivity(), R.string.dog_changes_not_saved, Toast.LENGTH_SHORT).show());
         } catch (Exception e) {
-            Toast.makeText(getActivity(), R.string.dog_changes_save_exception + "", Toast.LENGTH_SHORT).show();
+            activity.runOnUiThread(() -> Toast.makeText(getActivity(), R.string.dog_changes_save_exception + "", Toast.LENGTH_SHORT).show());
         }
     }
 

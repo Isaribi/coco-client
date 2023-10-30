@@ -60,6 +60,8 @@ public class DogCardBig extends Fragment {
     private Button btnEdit, btnShowAppointments;
     private LinearLayout sameOwnerDogs;
 
+    private DatabaseActivity activity;
+
     public interface DogCardBigListener {
         void onBtnEditClicked(DogDto dog);
 
@@ -130,6 +132,7 @@ public class DogCardBig extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        activity = (DatabaseActivity) getActivity();
         dbHelper = new RequestDispatcher(getContext());
         initViews(view);
         displayData();
@@ -196,22 +199,22 @@ public class DogCardBig extends Fragment {
     }
 
     private void setSameOwnerDogs() {
-        List<DogDto> sameOwnerDogList = dbHelper.getSameOwnerDogs(ID);
-
-        if (sameOwnerDogList.size() > 0) {
-            TextView tv = new TextView(getActivity());
-            tv.setText(R.string.from);
-            sameOwnerDogs.addView(tv);
-        }
-
-        for (DogDto dog : sameOwnerDogList) {
-            TextView dogName = new TextView(getActivity());
-            dogName.setText(dog.getName());
-            dogName.setTextSize(20);
-            dogName.setPadding(5, 5, 5, 5);
-            dogName.setOnClickListener(view1 -> listener.onSameOwnerDogClicked(dog));
-            sameOwnerDogs.addView(dogName);
-        }
+        DatabaseActivity.executorService.execute(() -> {
+            List<DogDto> sameOwnerDogList = dbHelper.getSameOwnerDogs(ID);
+            if (sameOwnerDogList.size() > 0) {
+                TextView tv = new TextView(getActivity());
+                tv.setText(R.string.from);
+                activity.runOnUiThread(() ->  sameOwnerDogs.addView(tv));
+            }
+            for (DogDto dog : sameOwnerDogList) {
+                TextView dogName = new TextView(getActivity());
+                dogName.setText(dog.getName());
+                dogName.setTextSize(20);
+                dogName.setPadding(5, 5, 5, 5);
+                dogName.setOnClickListener(view1 -> listener.onSameOwnerDogClicked(dog));
+                activity.runOnUiThread(() ->sameOwnerDogs.addView(dogName));
+            }
+        });
     }
 
     @Override

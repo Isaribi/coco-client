@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -22,6 +23,7 @@ import okhttp3.Response;
 
 public class RequestDispatcher {
 
+    private final String url = "http://10.0.2.2:8080/api/dogs";
     public static final MediaType JSON
             = MediaType.parse("application/json; charset=utf-8");
     private final Context context;
@@ -35,14 +37,51 @@ public class RequestDispatcher {
     }
 
     public List<DogDto> getSameOwnerDogs(int id) {
-        return List.of();
+        OkHttpClient client = new OkHttpClient();
+        String jsonResponse = "";
+
+        HttpUrl httpUrl = HttpUrl
+                .parse(url+"/sameOwner")
+                .newBuilder()
+                .addQueryParameter("id", String.valueOf(id))
+                .build();
+        Request request = new Request.Builder()
+                .get()
+                .url(httpUrl)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            jsonResponse = Objects.requireNonNull(response.body()).string();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return convertToDogList(jsonResponse);
     }
 
     public boolean nameTakenByDifferentDog(String fullName) {
         return false;
     }
 
-    public void deleteDog(int dogID) {
+    public boolean deleteDog(int dogID) {
+        OkHttpClient client = new OkHttpClient();
+        int code = 0;
+
+        HttpUrl httpUrl = HttpUrl
+                .parse(url)
+                .newBuilder()
+                .addQueryParameter("id", String.valueOf(dogID))
+                .build();
+        Request request = new Request.Builder()
+                .delete()
+                .url(httpUrl)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            code = response.code();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return code == 200;
     }
 
     public DogDto getDog(int dogID) {
@@ -51,7 +90,7 @@ public class RequestDispatcher {
     }
 
     public List<DogDto> getDogs() {
-        String url = "http://10.0.2.2:8080/api/dogs";
+
         OkHttpClient client = new OkHttpClient();
         String jsonResponse = "";
         Request request = new Request.Builder()
@@ -67,12 +106,29 @@ public class RequestDispatcher {
     }
 
 
-    public boolean editDog(DogDto dog) {
-        return true;
+    public DogDto editDog(DogDto dog) {
+        OkHttpClient client = new OkHttpClient();
+        String jsonResponse = "";
+
+        HttpUrl httpUrl = HttpUrl
+                .parse(url)
+                .newBuilder()
+                .addQueryParameter("id", String.valueOf(dog.getId()))
+                .build();
+        Request request = new Request.Builder()
+                .put(Objects.requireNonNull(convertToJson(dog)))
+                .url(httpUrl)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            jsonResponse = Objects.requireNonNull(response.body()).string();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return convertToDog(jsonResponse);
     }
 
     public DogDto addDog(DogDto dog) {
-        String url = "http://10.0.2.2:8080/api/dogs";
         OkHttpClient client = new OkHttpClient();
         String jsonResponse = "";
         Request request = new Request.Builder()

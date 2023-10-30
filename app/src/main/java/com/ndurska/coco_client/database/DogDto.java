@@ -1,7 +1,6 @@
 package com.ndurska.coco_client.database;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class DogDto implements Serializable {
     int id;
@@ -17,7 +16,8 @@ public class DogDto implements Serializable {
     String additionalInfo;
     String photoUUID;
 
-    public DogDto(){}
+    public DogDto() {
+    }
 
     public DogDto(Integer id, String name, String pseudonym, String breed, String phoneNumber1, String phoneNumber2, String phoneNumberLabel1, String phoneNumberLabel2, int expectedAppointmentDuration, int lastPaidAmount, String additionalInfo, String photoUUID) {
         this.id = id;
@@ -132,5 +132,9 @@ public class DogDto implements Serializable {
 
     public void setPhotoUUID(String photoUUID) {
         this.photoUUID = photoUUID;
+    }
+
+    public String getFullName() {
+        return name + " " + pseudonym + " " + breed;
     }
 }
