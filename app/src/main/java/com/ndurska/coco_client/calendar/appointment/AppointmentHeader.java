@@ -1,6 +1,6 @@
 package com.ndurska.coco_client.calendar.appointment;
 
-import com.ndurska.coco_client.database.DogDto;
+import com.ndurska.coco_client.database.dto.DogDto;
 
 /**
  * Works like a Pair<String,String> but can be stored in Lists
@@ -16,7 +16,7 @@ public class AppointmentHeader {
     }
 
     public String getClientName() {
-        return dog.getFullName();
+        return dog.clientFullName();
     }
 
     public DogDto getDog() {

@@ -1,24 +1,28 @@
-package com.ndurska.coco_client.calendar.appointment;
+package com.ndurska.coco_client.calendar.appointment.dto;
 
 import androidx.annotation.NonNull;
+
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.ndurska.coco_client.database.dto.DogDto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 
-public class Appointment implements Serializable {
-    private int ID;
-    private int clientID;
+public class AppointmentDto implements Serializable {
+    private long id;
+    @JsonAlias("dogTwoContactsDTO")
+    private DogDto dogDto;
     private LocalDate date;
     private LocalTime time;
     private boolean attendance;
     private int amountPaid;
     private String notes;
 
-    public Appointment(int ID, LocalDate date, LocalTime time, int clientID, boolean attendance, int amountPaid, String notes) {
-        this.ID = ID;
-        this.clientID = clientID;
+    public AppointmentDto(long id, LocalDate date, LocalTime time, DogDto dogDto, boolean attendance, int amountPaid, String notes) {
+        this.id = id;
+        this.dogDto = dogDto;
         this.date = date;
         this.time = time;
         this.attendance = attendance;
@@ -26,25 +30,25 @@ public class Appointment implements Serializable {
         this.notes = notes;
     }
 
-    public Appointment() {
+    public AppointmentDto() {
     }
 
-    public Appointment(LocalDate date, LocalTime time) {
+    public AppointmentDto(LocalDate date, LocalTime time) {
         this.date = date;
         this.time = time;
         this.attendance = true;
     }
 
-    public int getID() {
-        return ID;
+    public long getId() {
+        return id;
     }
 
-    public int getClientID() {
-        return clientID;
+    public DogDto getDogDto() {
+        return dogDto;
     }
 
-    public void setClientID(int clientID) {
-        this.clientID = clientID;
+    public void setDogDto(DogDto dogDto) {
+        this.dogDto = dogDto;
     }
 
     public LocalDate getDate() {
@@ -91,9 +95,9 @@ public class Appointment implements Serializable {
     @NonNull
     @Override
     public String toString() {
-        return "Appointment{" +
-                "ID=" + ID +
-                ", clientID=" + clientID +
+        return "AppointmentDto{" +
+                "ID=" + id +
+                ", clientID=" + dogDto.getId() +
                 ", date=" + date +
                 ", time=" + time +
                 ", attendance=" + attendance +

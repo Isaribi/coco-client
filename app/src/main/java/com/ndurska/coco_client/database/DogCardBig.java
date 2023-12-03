@@ -1,5 +1,7 @@
 package com.ndurska.coco_client.database;
 
+import static com.ndurska.coco_client.calendar.CalendarActivity.executorService;
+
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -19,7 +21,8 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.ndurska.coco_client.R;
-import com.ndurska.coco_client.shared.RequestDispatcher;
+import com.ndurska.coco_client.database.dto.DogDto;
+import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 
 import java.util.List;
 
@@ -43,7 +46,7 @@ public class DogCardBig extends Fragment {
     private String notes;
     private String photoPath;
     private DogCardBigListener listener;
-    private RequestDispatcher dbHelper;
+    private DogsRequestDispatcher dbHelper;
 
     private TextView tvName;
     private TextView tvAdjective;
@@ -133,7 +136,7 @@ public class DogCardBig extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = (DatabaseActivity) getActivity();
-        dbHelper = new RequestDispatcher(getContext());
+        dbHelper = new DogsRequestDispatcher();
         initViews(view);
         displayData();
         setListeners();
@@ -199,12 +202,12 @@ public class DogCardBig extends Fragment {
     }
 
     private void setSameOwnerDogs() {
-        DatabaseActivity.executorService.execute(() -> {
+        executorService.execute(() -> {
             List<DogDto> sameOwnerDogList = dbHelper.getSameOwnerDogs(ID);
             if (sameOwnerDogList.size() > 0) {
                 TextView tv = new TextView(getActivity());
                 tv.setText(R.string.from);
-                activity.runOnUiThread(() ->  sameOwnerDogs.addView(tv));
+                activity.runOnUiThread(() -> sameOwnerDogs.addView(tv));
             }
             for (DogDto dog : sameOwnerDogList) {
                 TextView dogName = new TextView(getActivity());
@@ -212,7 +215,7 @@ public class DogCardBig extends Fragment {
                 dogName.setTextSize(20);
                 dogName.setPadding(5, 5, 5, 5);
                 dogName.setOnClickListener(view1 -> listener.onSameOwnerDogClicked(dog));
-                activity.runOnUiThread(() ->sameOwnerDogs.addView(dogName));
+                activity.runOnUiThread(() -> sameOwnerDogs.addView(dogName));
             }
         });
     }

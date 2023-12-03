@@ -1,4 +1,4 @@
-package com.ndurska.coco_client.database;
+package com.ndurska.coco_client.database.dto;
 
 import java.io.Serializable;
 
@@ -134,7 +134,7 @@ public class DogDto implements Serializable {
         this.photoUUID = photoUUID;
     }
 
-    public String getFullName() {
+    public String clientFullName() {
         return name + " " + pseudonym + " " + breed;
     }
 }

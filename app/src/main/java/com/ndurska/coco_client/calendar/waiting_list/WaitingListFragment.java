@@ -13,10 +13,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import com.ndurska.coco_client.R;
 import com.ndurska.coco_client.calendar.CalendarActivity;
-import com.ndurska.coco_client.shared.RequestDispatcher;
+import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +25,7 @@ public class WaitingListFragment extends DialogFragment implements AddWaitingLis
     private ShowWaitingListAdapter adapter;
     private RecyclerView rvWaitingList;
     private List<WaitingListRecord> waitingList;
-    private RequestDispatcher requestDispatcher;
+    private DogsRequestDispatcher dogsRequestDispatcher;
     private CalendarActivity context;
 
 
@@ -45,9 +44,9 @@ public class WaitingListFragment extends DialogFragment implements AddWaitingLis
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        requestDispatcher = new RequestDispatcher(getActivity());
+        dogsRequestDispatcher = new DogsRequestDispatcher();
 //todo thread
-//        waitingList = requestDispatcher.getWaitingList();
+//        waitingList = dogsRequestDispatcher.getWaitingList();
     }
 
     @Override
@@ -72,7 +71,7 @@ public class WaitingListFragment extends DialogFragment implements AddWaitingLis
 
     private void setAdapter() {
         //todo thread
-//        waitingList = requestDispatcher.getWaitingList();
+//        waitingList = dogsRequestDispatcher.getWaitingList();
         adapter = new ShowWaitingListAdapter(getContext(), waitingList);
         rvWaitingList.setAdapter(adapter);
 

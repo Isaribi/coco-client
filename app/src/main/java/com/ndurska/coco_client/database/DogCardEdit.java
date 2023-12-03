@@ -1,5 +1,7 @@
 package com.ndurska.coco_client.database;
 
+import static com.ndurska.coco_client.calendar.CalendarActivity.executorService;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -27,7 +29,8 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.ndurska.coco_client.R;
-import com.ndurska.coco_client.shared.RequestDispatcher;
+import com.ndurska.coco_client.database.dto.DogDto;
+import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -64,7 +67,7 @@ public class DogCardEdit extends Fragment {
     private int expectedVisitDuration;
     private String notes;
     private String photoUUID;
-    RequestDispatcher requestDispatcher;
+    DogsRequestDispatcher dogsRequestDispatcher;
     DatabaseActivity activity;
 
     TextView etDogName;
@@ -190,7 +193,7 @@ public class DogCardEdit extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = (DatabaseActivity) getActivity();
-        requestDispatcher = new RequestDispatcher(getContext());
+        dogsRequestDispatcher = new DogsRequestDispatcher();
         findViews(view);
         displayDogInfo();
         setListeners();
@@ -249,7 +252,7 @@ public class DogCardEdit extends Fragment {
         }
         String fullName = etDogName.getText().toString().trim() + etDogPseudonym.getText().toString().trim() + etDogBreed.getText().toString().trim();
         fullName = fullName.toLowerCase();
-        if (requestDispatcher.nameTakenByDifferentDog(fullName)) {
+        if (dogsRequestDispatcher.nameTakenByDifferentDog(fullName)) {
             AtomicBoolean choice = getSameDogNameConfirmation();
             return choice.get();
         }
@@ -272,44 +275,11 @@ public class DogCardEdit extends Fragment {
     }
 
     private void setListeners() {
-        btnSaveChanges.setOnClickListener(view13 -> {
-            if (dogInfoIsValid()) {
-                if (isDogInDatabase()) {
-                    DatabaseActivity.executorService.execute(() -> {
-                        saveDogEdits();
-                        listener.onBtnSaveClicked(false);
-                    });
-                } else {
-                    getDogInfoFromViews();
-                    DatabaseActivity.executorService.execute(() -> {
-                        saveDogToDatabase();
-                        listener.onBtnSaveClicked(true);
-                    });
-                }
-            }
-        });
+        btnSaveChanges.setOnClickListener(view13 -> saveDog());
 
-        btnDeleteDog.setOnClickListener(view1 -> {
-            DatabaseActivity.executorService.execute(() -> {
-                if (isDogInDatabase()) {
-                    try {
-                        requestDispatcher.deleteDog(dog.getId());
-                    } catch (Exception e) {
-                        Log.println(Log.ERROR, "del", e.toString());
-                        Toast.makeText(activity, R.string.delete_dog_exception + "", Toast.LENGTH_SHORT).show();
-                    }
-                    listener.onBtnDeleteClicked(false);
-                } else {
-                    listener.onBtnDeleteClicked(true);
-                }
-            });
-        });
+        btnDeleteDog.setOnClickListener(view1 -> deleteDog());
 
-        ivPhoto.setOnClickListener(view1 -> {
-            Intent galleryIntent = new Intent(Intent.ACTION_PICK);
-            galleryIntent.setDataAndType(MediaStore.Images.Media.INTERNAL_CONTENT_URI, "image/*");
-            imagePickerActivityResult.launch(galleryIntent);
-        });
+        ivPhoto.setOnClickListener(view1 -> choosePhoto());
 
         btnDeletePicture.setOnClickListener(view12 -> new AlertDialog.Builder(getContext())
                 .setTitle(R.string.delete_picture)
@@ -322,6 +292,54 @@ public class DogCardEdit extends Fragment {
                 .setNegativeButton(R.string.no, null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show());
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        listener = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
+    private void saveDog() {
+        executorService.execute(() -> {
+            if (dogInfoIsValid()) {
+                if (isDogInDatabase()) {
+                    saveDogEdits();
+                    listener.onBtnSaveClicked(false);
+                } else {
+                    getDogInfoFromViews();
+                    saveDogToDatabase();
+                    listener.onBtnSaveClicked(true);
+                }
+            }
+        });
+    }
+
+    private void deleteDog() {
+        executorService.execute(() -> {
+            if (isDogInDatabase()) {
+                try {
+                    dogsRequestDispatcher.deleteDog(dog.getId());
+                } catch (Exception e) {
+                    Log.println(Log.ERROR, "del", e.toString());
+                    Toast.makeText(activity, R.string.delete_dog_exception + "", Toast.LENGTH_SHORT).show();
+                }
+                listener.onBtnDeleteClicked(false);
+            } else {
+                listener.onBtnDeleteClicked(true);
+            }
+        });
+    }
+
+    private void choosePhoto() {
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK);
+        galleryIntent.setDataAndType(MediaStore.Images.Media.INTERNAL_CONTENT_URI, "image/*");
+        imagePickerActivityResult.launch(galleryIntent);
     }
 
     private boolean isDogInDatabase() {
@@ -338,7 +356,7 @@ public class DogCardEdit extends Fragment {
         try {
             getDogInfoFromViews();
             dog.setPhotoUUID(photoUUID);
-            DogDto editedDog = requestDispatcher.editDog(dog);
+            DogDto editedDog = dogsRequestDispatcher.editDog(dog);
             activity.setActiveDog(editedDog);
             activity.runOnUiThread(() -> Toast.makeText(getActivity(), R.string.dog_changes_saved, Toast.LENGTH_SHORT).show());
             activity.runOnUiThread(() -> Toast.makeText(getActivity(), R.string.dog_changes_not_saved, Toast.LENGTH_SHORT).show());
@@ -364,7 +382,7 @@ public class DogCardEdit extends Fragment {
     }
 
     private void saveDogToDatabase() {
-        DogDto savedDog = requestDispatcher.addDog(dog);
+        DogDto savedDog = dogsRequestDispatcher.addDog(dog);
         int dogId = savedDog.getId();
         dog.setId(dogId);
         activity.setActiveDog(dog);
@@ -374,17 +392,6 @@ public class DogCardEdit extends Fragment {
         else
             toastText = R.string.dog_not_saved + "";
         activity.runOnUiThread(() -> Toast.makeText(getActivity(), toastText, Toast.LENGTH_SHORT).show());
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        listener = null;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
     }
 }
 

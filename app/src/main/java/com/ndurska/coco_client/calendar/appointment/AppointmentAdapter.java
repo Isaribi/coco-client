@@ -17,7 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.ndurska.coco_client.R;
-import com.ndurska.coco_client.database.DogDto;
+import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
+import com.ndurska.coco_client.database.dto.DogDto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -37,19 +38,19 @@ public class AppointmentAdapter extends ArrayAdapter<AppointmentCell> {
 
         void onUnavailableItemClicked(View view, LocalDate date, LocalTime time);
 
-        void onClientNameClicked(TextView tv, LocalDate date, LocalTime time, int appointmentID, DogDto client);
+        void onClientNameClicked(TextView tv, LocalDate date, LocalTime time, long appointmentID, DogDto client);
 
         void onNotesButtonClicked(Button btn, String note);
     }
 
-    public AppointmentAdapter(@NonNull Context context, List<AppointmentCell> appointmentCells, List<Appointment> appointments) {
+    public AppointmentAdapter(@NonNull Context context, List<AppointmentCell> appointmentCells, List<AppointmentDto> appointmentDtos) {
         super(context, 0, appointmentCells);
         listener = (AppointmentAdapterListener) context;
     }
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView,ViewGroup parent) {
+    public View getView(int position, @Nullable View convertView, ViewGroup parent) {
         appointmentCell = getItem(position);
         LocalTime time = appointmentCell.getTime();
         LocalDate date = appointmentCell.getDate();
@@ -106,7 +107,7 @@ public class AppointmentAdapter extends ArrayAdapter<AppointmentCell> {
     }
 
     private void setAppointmentCellListener(int i, TextView tv, LocalDate date, LocalTime time) {
-        int appID = appointmentCell.getAppointmentID(i);
+        long appID = appointmentCell.getAppointmentID(i);
         DogDto client = appointmentCell.getAppointmentHeader(i).getDog();
         tv.setOnClickListener(view -> listener.onClientNameClicked(tv, date, time, appID, client));
 

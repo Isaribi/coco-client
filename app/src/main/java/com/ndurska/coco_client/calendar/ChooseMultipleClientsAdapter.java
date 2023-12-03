@@ -15,8 +15,8 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ndurska.coco_client.R;
-import com.ndurska.coco_client.database.DogDto;
-import com.ndurska.coco_client.shared.RequestDispatcher;
+import com.ndurska.coco_client.database.dto.DogDto;
+import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ import java.util.List;
 public class ChooseMultipleClientsAdapter extends RecyclerView.Adapter<ChooseDogVH> {
     List<DogDto> items;
     Context context;
-    RequestDispatcher requestDispatcher;
+    DogsRequestDispatcher dogsRequestDispatcher;
     DogDto activeDog;
     List<DogDto> chosenDogs;
     int clickedPosition = -1;
@@ -35,7 +35,7 @@ public class ChooseMultipleClientsAdapter extends RecyclerView.Adapter<ChooseDog
         this.context = context;
         this.chosenDogs = new ArrayList<>();
 
-        requestDispatcher = new RequestDispatcher(context);
+        dogsRequestDispatcher = new DogsRequestDispatcher();
 
     }
 
@@ -59,7 +59,7 @@ public class ChooseMultipleClientsAdapter extends RecyclerView.Adapter<ChooseDog
 
         holder.itemView.setOnClickListener(view -> {
             try {
-                //clickedPosition = holder.getAbsoluteAdapterPosition();
+                clickedPosition = holder.getAdapterPosition();
                 activeDog = items.get(clickedPosition);
                 if (!chosenDogs.contains(activeDog))
                     chosenDogs.add(activeDog);

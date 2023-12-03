@@ -12,8 +12,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ndurska.coco_client.R;
-import com.ndurska.coco_client.database.Dog;
-import com.ndurska.coco_client.database.DogDto;
+import com.ndurska.coco_client.database.dto.DogDto;
+import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ import java.util.List;
 public class ChooseDogAdapter extends RecyclerView.Adapter<ChooseDogAdapter.DogCardVH> {
     public List<DogDto> items;
     Context context;
-    RequestDispatcher requestDispatcher;
+    DogsRequestDispatcher dogsRequestDispatcher;
 
     DogDto activeDog;
     public int clickedPosition = -1;
@@ -38,9 +38,7 @@ public class ChooseDogAdapter extends RecyclerView.Adapter<ChooseDogAdapter.DogC
         this.items = items;
         this.context = context;
 
-        requestDispatcher = new RequestDispatcher(context);
-
-
+        dogsRequestDispatcher = new DogsRequestDispatcher();
     }
 
 

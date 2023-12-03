@@ -22,10 +22,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.ndurska.coco_client.R;
 import com.ndurska.coco_client.calendar.CalendarActivity;
 import com.ndurska.coco_client.calendar.CalendarUtils;
-import com.ndurska.coco_client.database.DogDto;
+import com.ndurska.coco_client.database.dto.DogDto;
+import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 import com.ndurska.coco_client.shared.ChooseDogAdapter;
 import com.ndurska.coco_client.shared.DogFilter;
-import com.ndurska.coco_client.shared.RequestDispatcher;
 import com.ndurska.coco_client.shared.TextWatcherAdapter;
 
 import java.time.LocalDate;
@@ -51,7 +51,7 @@ public class AddWaitingListRecordFragment extends DialogFragment {
     private ImageButton ibDateEnd;
 
     private List<DogDto> dogs;
-    private RequestDispatcher requestDispatcher;
+    private DogsRequestDispatcher dogsRequestDispatcher;
     private NewWaitingListRecordListener listener;
 
     public interface NewWaitingListRecordListener {
@@ -81,11 +81,11 @@ public class AddWaitingListRecordFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestDispatcher = new RequestDispatcher(getActivity());
+        dogsRequestDispatcher = new DogsRequestDispatcher();
         dateStart = LocalDate.now();
         dateEnd = LocalDate.now().plusMonths(1);
         //todo thread
-        //clients = requestDispatcher.getClients();
+        //clients = dogsRequestDispatcher.getClients();
     }
 
     @Override
@@ -190,7 +190,7 @@ public class AddWaitingListRecordFragment extends DialogFragment {
                                     etNotes.getText().toString()
                             );
                             //todo thread
-//                            if (requestDispatcher.addRecordToWaitingList(waitingListRecord)) {
+//                            if (dogsRequestDispatcher.addRecordToWaitingList(waitingListRecord)) {
 //                                dismiss();
 //                                listener.onNewRecordAdded();
 //                                Toast.makeText(activity, R.string.dog_added_to_waiting_list + "", Toast.LENGTH_LONG).show();

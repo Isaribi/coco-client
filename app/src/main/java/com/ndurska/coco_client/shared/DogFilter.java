@@ -1,7 +1,7 @@
 package com.ndurska.coco_client.shared;
 
-import com.ndurska.coco_client.database.Dog;
-import com.ndurska.coco_client.database.DogDto;
+
+import com.ndurska.coco_client.database.dto.DogDto;
 
 import java.util.ArrayList;
 import java.util.List;

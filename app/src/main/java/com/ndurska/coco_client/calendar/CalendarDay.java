@@ -13,18 +13,19 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.ndurska.coco_client.R;
-import com.ndurska.coco_client.calendar.appointment.Appointment;
 import com.ndurska.coco_client.calendar.appointment.AppointmentAdapter;
 import com.ndurska.coco_client.calendar.appointment.AppointmentCell;
+import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
 import com.ndurska.coco_client.calendar.unavailable_period.UnavailablePeriod;
-import com.ndurska.coco_client.database.DogDto;
-import com.ndurska.coco_client.shared.RequestDispatcher;
+import com.ndurska.coco_client.database.dto.DogDto;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class CalendarDay extends Fragment {
@@ -32,10 +33,12 @@ public class CalendarDay extends Fragment {
     LocalDate date;
     TextView tvDay;
     LinearLayout llLabels;
-    List<Appointment> appointments;
+    List<AppointmentDto> appointmentDtos;
     List<DogDto> dogs;
     List<UnavailablePeriod> unavailablePeriods;
     private AppointmentAdapterListener listener;
+    private CalendarActivity activity;
+
 
     public interface AppointmentAdapterListener {
         boolean onDayLabelLongClicked(View view, LocalDate date);
@@ -49,12 +52,12 @@ public class CalendarDay extends Fragment {
         return date;
     }
 
-    public static CalendarDay newInstance(LocalDate date) {
+    public static CalendarDay newInstance(LocalDate date, List<AppointmentDto> appointmentDtos) {
         CalendarDay fragment = new CalendarDay();
         Bundle args = new Bundle();
         args.putSerializable("date", date);
+        args.putSerializable("appointmentDtos", (Serializable) appointmentDtos);
         fragment.setArguments(args);
-
         return fragment;
     }
 
@@ -64,23 +67,19 @@ public class CalendarDay extends Fragment {
 
         if (getArguments() != null) {
             date = (LocalDate) getArguments().getSerializable("date");
+            appointmentDtos = (List<AppointmentDto>) getArguments().getSerializable("appointmentDtos");
+            dogs = appointmentDtos.stream().map(AppointmentDto::getDogDto).collect(Collectors.toList());
         }
-        findAppointmentsForTheDay();
+        activity = (CalendarActivity) getActivity();
+
+
     }
 
     private void findAppointmentsForTheDay() {
-        RequestDispatcher dbHelper = new RequestDispatcher(getActivity());
+
         try {
-            //todo thread
-            //appointments = dbHelper.getAppointmentsForTheDay(date);
-            //unavailablePeriods = dbHelper.getUnavailablePeriodsForTheDay(date);
-            appointments = new ArrayList<>();
+            //unavailablePeriods = appointmentsRequestDispatcher1.getUnavailablePeriodsForTheDay(date);
             unavailablePeriods = new ArrayList<>();
-            List<Integer> IDs = new ArrayList<>();
-            for (Appointment appointment : appointments)
-                IDs.add(appointment.getClientID());
-            if (IDs.size() > 0){}
-              //  dogs = dbHelper.getClientsByIDs(IDs);
         } catch (Exception e) {
             Toast.makeText(getActivity(), "CalendarDay.OnCreate(): " + e.toString(), Toast.LENGTH_SHORT).show();
         }
@@ -93,13 +92,23 @@ public class CalendarDay extends Fragment {
         tvDay = view.findViewById(R.id.header);
         String day = CalendarUtils.dayMonthFromDate(date) + " - " + date.getDayOfWeek().getDisplayName(TextStyle.FULL, CalendarUtils.locale);
         tvDay.setText(day);
-        tvDay.setOnLongClickListener(view1 -> listener.onDayLabelLongClicked(tvDay,date));
+        tvDay.setOnLongClickListener(view1 -> listener.onDayLabelLongClicked(tvDay, date));
 
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_calendar_day, container, false);
+        llLabels = view.findViewById(R.id.llLabels);
+        findAppointmentsForTheDay();
+        setCellAdapter();
+        return view;
     }
 
     private ArrayList<AppointmentCell> getAppointmentCellList() {
         ArrayList<AppointmentCell> list = new ArrayList<>();
-        AppointmentCell.setAppointments((ArrayList<Appointment>) appointments);
+        AppointmentCell.setAppointments((ArrayList<AppointmentDto>) appointmentDtos);
         AppointmentCell.setDogs((ArrayList<DogDto>) dogs);
         AppointmentCell.setUnavailablePeriods((ArrayList<UnavailablePeriod>) unavailablePeriods);
 
@@ -114,22 +123,9 @@ public class CalendarDay extends Fragment {
         return list;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_calendar_day, container, false);
-        llLabels = view.findViewById(R.id.llLabels);
-        setAdapters();
-        return view;
-    }
-
-    private void setAdapters() {
-        setCellAdapter();
-    }
-
     private void setCellAdapter() {
         ArrayList<AppointmentCell> listOfCells = getAppointmentCellList();
-        AppointmentAdapter adapter = new AppointmentAdapter(this.requireContext(), listOfCells, appointments);
+        AppointmentAdapter adapter = new AppointmentAdapter(this.requireContext(), listOfCells, appointmentDtos);
         final int adapterCount = adapter.getCount();
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0);
@@ -139,7 +135,7 @@ public class CalendarDay extends Fragment {
             View item = adapter.getView(i, null, null);
             item.setLayoutParams(params);
             item.setPadding(5, 0, 0, 0);
-            llLabels.addView(item);
+            getActivity().runOnUiThread(() -> llLabels.addView(item));
         }
     }
 }

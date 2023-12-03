@@ -1,5 +1,7 @@
 package com.ndurska.coco_client.database;
 
+import static com.ndurska.coco_client.calendar.CalendarActivity.executorService;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -25,15 +27,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ndurska.coco_client.R;
+import com.ndurska.coco_client.database.dto.DogDto;
+import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 import com.ndurska.coco_client.shared.ChooseDogAdapter;
 import com.ndurska.coco_client.shared.DogFilter;
-import com.ndurska.coco_client.shared.RequestDispatcher;
 import com.ndurska.coco_client.shared.TextWatcherAdapter;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.DogCardEditListener, DogCardBig.DogCardBigListener, ChooseDogAdapter.ChooseDogAdapterListener {
 
@@ -44,23 +45,19 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
     List<DogDto> dogs;
     private DogDto activeDog;
     private int activeDogPosition;
-    RequestDispatcher requestDispatcher;
+    DogsRequestDispatcher dogsRequestDispatcher;
     private static final int PERMISSION_REQUEST_CODE = 100;
     private Button btnDogAdd;
     private Toolbar toolbar;
 
-    public static ExecutorService executorService;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        executorService = Executors.newFixedThreadPool(4);
         setContentView(R.layout.database_activity);
-        requestDispatcher = new RequestDispatcher(getApplicationContext());
+        dogsRequestDispatcher = new DogsRequestDispatcher();
         executorService.execute(
                 () -> {
-                    dogs = requestDispatcher.getDogs();
+                    dogs = dogsRequestDispatcher.getDogs();
                     runOnUiThread(this::createDogListAdapter);
                 }
         );
@@ -69,75 +66,6 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
         findViews();
         setSupportActionBar(toolbar);
         setListeners();
-    }
-
-    private void displayDogIfRequested() {
-        Bundle b = getIntent().getExtras();
-        DogDto requestedDog = new DogDto();
-        if (b != null)
-            requestedDog = (DogDto) b.getSerializable("dog");
-
-        if (requestedDog.getId() != null && requestedDog.getId() != 0) {
-            setActiveDog(requestedDog);
-            DogCardBig dogCardBig = DogCardBig.newInstance(activeDog);
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.placeholder, dogCardBig).commit();
-        }
-    }
-
-    private void createDogListAdapter() {
-        rvDogList = findViewById(R.id.rvDogList);
-        rvDogList.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ChooseDogAdapter(dogs, this);
-        rvDogList.setAdapter(adapter);
-    }
-
-    private void setListeners() {
-        etDogSearch.addTextChangedListener(new TextWatcherAdapter() {
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                DogFilter filter = new DogFilter(dogs);
-
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                Fragment fr = DatabaseActivity.this.getSupportFragmentManager().findFragmentById(R.id.placeholder);
-                if (fr != null)
-                    ft.remove(fr).commit();
-
-                List<DogDto> searchResults = filter.dogsContaining(String.valueOf(editable));
-                adapter = new ChooseDogAdapter(searchResults, DatabaseActivity.this);
-                rvDogList.setAdapter(adapter);
-
-            }
-        });
-
-        btnDogAdd.setOnClickListener(view -> {
-            etDogSearch.setText(null);
-            activeDogPosition = adapter.clickedPosition;
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            DogCardEdit dogCardEdit = DogCardEdit.newInstance();
-            ft.replace(R.id.placeholder, dogCardEdit).commit();
-            bottomBar.setVisibility(View.GONE);
-        });
-
-        if (getCallingActivity() != null) {
-            btnDogAdd.callOnClick();
-        }
-    }
-
-    private void findViews() {
-        btnDogAdd = findViewById(R.id.btnDogAdd);
-        etDogSearch = findViewById(R.id.etDogSearch);
-        bottomBar = findViewById(R.id.linearLayout);
-        toolbar = findViewById(R.id.toolbar);
-    }
-
-    private void checkForSMSPermission() {
-        if (checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_DENIED) {
-            Log.d("permission", "permission denied to SEND_SMS - requesting it");
-            String[] permissions = {Manifest.permission.SEND_SMS};
-            requestPermissions(permissions, PERMISSION_REQUEST_CODE);
-        }
     }
 
 
@@ -175,13 +103,8 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
     @Override
     public void onBtnSaveClicked(boolean isNewDog) {
 
-//        executorService.execute(
-//                () -> {
-        dogs = requestDispatcher.getDogs();
+        dogs = dogsRequestDispatcher.getDogs();
         runOnUiThread(this::createDogListAdapter);
-
-        //            }
-        //     );
         DogCardBig dogCardBig = DogCardBig.newInstance(activeDog);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.placeholder, dogCardBig).commit();
@@ -238,9 +161,11 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
 
     @Override
     public void onBtnShowAppointmentsClicked(DogDto dog) {
-        FragmentManager fm = getSupportFragmentManager();
-//        ShowAppointments showAppointmentsFragment = ShowAppointments.newInstance(dog);
-//        showAppointmentsFragment.show(fm, "show_appointments_fragment");
+        executorService.execute(() -> {
+            FragmentManager fm = getSupportFragmentManager();
+            ShowAppointments showAppointmentsFragment = ShowAppointments.newInstance(dog);
+            showAppointmentsFragment.show(fm, "show_appointments_fragment");
+        });
     }
 
     @Override
@@ -249,6 +174,81 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
         ft.replace(R.id.placeholder, DogCardBig.newInstance(dog)).commit();
         bottomBar.setVisibility(View.VISIBLE);
         this.activeDogPosition = adapter.clickedPosition;
+    }
+
+    private void displayDogIfRequested() {
+        Bundle b = getIntent().getExtras();
+        DogDto requestedDog = new DogDto();
+        if (b != null)
+            requestedDog = (DogDto) b.getSerializable("dto");
+
+        if (requestedDog.getId() != null && requestedDog.getId() != 0) {
+            setActiveDog(requestedDog);
+            DogCardBig dogCardBig = DogCardBig.newInstance(activeDog);
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.placeholder, dogCardBig).commit();
+        }
+    }
+
+    private void createDogListAdapter() {
+        rvDogList = findViewById(R.id.rvDogList);
+        rvDogList.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new ChooseDogAdapter(dogs, this);
+        rvDogList.setAdapter(adapter);
+    }
+
+    private void setListeners() {
+        etDogSearch.addTextChangedListener(new TextWatcherAdapter() {
+            @Override
+            public void afterTextChanged(Editable editable) {
+                displaySearchResults(editable);
+            }
+        });
+
+        btnDogAdd.setOnClickListener(view -> {
+            displayEmptyCreationCard();
+        });
+
+        if (getCallingActivity() != null) {
+            btnDogAdd.callOnClick();
+        }
+    }
+
+    private void displaySearchResults(Editable editable) {
+        DogFilter filter = new DogFilter(dogs);
+
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment fr = DatabaseActivity.this.getSupportFragmentManager().findFragmentById(R.id.placeholder);
+        if (fr != null)
+            ft.remove(fr).commit();
+
+        List<DogDto> searchResults = filter.dogsContaining(String.valueOf(editable));
+        adapter = new ChooseDogAdapter(searchResults, DatabaseActivity.this);
+        rvDogList.setAdapter(adapter);
+    }
+
+    private void displayEmptyCreationCard() {
+        etDogSearch.setText(null);
+        activeDogPosition = adapter.clickedPosition;
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        DogCardEdit dogCardEdit = DogCardEdit.newInstance();
+        ft.replace(R.id.placeholder, dogCardEdit).commit();
+        bottomBar.setVisibility(View.GONE);
+    }
+
+    private void findViews() {
+        btnDogAdd = findViewById(R.id.btnDogAdd);
+        etDogSearch = findViewById(R.id.etDogSearch);
+        bottomBar = findViewById(R.id.linearLayout);
+        toolbar = findViewById(R.id.toolbar);
+    }
+
+    private void checkForSMSPermission() {
+        if (checkSelfPermission(Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_DENIED) {
+            Log.d("permission", "permission denied to SEND_SMS - requesting it");
+            String[] permissions = {Manifest.permission.SEND_SMS};
+            requestPermissions(permissions, PERMISSION_REQUEST_CODE);
+        }
     }
 
 

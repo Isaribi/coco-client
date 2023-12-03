@@ -25,22 +25,25 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.ndurska.coco_client.R;
-import com.ndurska.coco_client.calendar.appointment.Appointment;
 import com.ndurska.coco_client.calendar.appointment.AppointmentAdapter;
 import com.ndurska.coco_client.calendar.appointment.CreateAppointmentFragment;
+import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
+import com.ndurska.coco_client.calendar.appointment.web.AppointmentsRequestDispatcher;
 import com.ndurska.coco_client.calendar.waiting_list.AddWaitingListRecordFragment;
 import com.ndurska.coco_client.calendar.waiting_list.WaitingListFragment;
 import com.ndurska.coco_client.calendar.waiting_list.WaitingListRecord;
-import com.ndurska.coco_client.database.DogDto;
 import com.ndurska.coco_client.database.DatabaseActivity;
+import com.ndurska.coco_client.database.dto.DogDto;
+import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 import com.ndurska.coco_client.shared.ChooseDogAdapter;
-import com.ndurska.coco_client.shared.RequestDispatcher;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CalendarActivity extends AppCompatActivity implements ChooseDogAdapter.ChooseDogAdapterListener,
         AppointmentAdapter.AppointmentAdapterListener,
@@ -66,7 +69,10 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
     //MonthSummaryFragment monthSummaryFragment;
 
     List<WaitingListRecord> waitingListForShownWeek;
-    RequestDispatcher requestDispatcher;
+    DogsRequestDispatcher dogsRequestDispatcher;
+    AppointmentsRequestDispatcher appointmentsRequestDispatcher;
+
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
     private float x1;
     private float y1;
@@ -74,18 +80,296 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
     private Button btnTimeBack;
     private Button btnLockDate;
     private Button btnTimeForward;
+    private TextView etLockEndTime;
+
+    public static ExecutorService executorService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_calendar);
-        requestDispatcher = new RequestDispatcher(this);
+        dogsRequestDispatcher = new DogsRequestDispatcher();
+        appointmentsRequestDispatcher = new AppointmentsRequestDispatcher();
+        executorService = Executors.newFixedThreadPool(10);
         findViews();
         initToolbar();
         setListeners();
         showCurrentWeek();
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        menu.findItem(R.id.calendar).setVisible(false);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Intent switchActivityIntent;
+        if (item.getItemId() == R.id.dog_database) {
+            switchActivityIntent = new Intent(this, DatabaseActivity.class);
+            startActivity(switchActivityIntent);
+            return true;
+
+//        }else if (item.getItemId() == R.id.summary) {
+//            CalendarUtils.selectedDate = LocalDate.now();
+//            switchActivityIntent = new Intent(this, DailySummaryActivity.class);
+//            startActivity(switchActivityIntent);
+//            return true;
+//        } else if (item.getItemId() == R.id.send_text_reminders) {
+//            CalendarUtils.selectedDate = LocalDate.now();
+//            switchActivityIntent = new Intent(this, RemindersActivity.class);
+//            startActivity(switchActivityIntent);
+//            return true;
+//        } else if (item.getItemId() == R.id.waiting_list) {
+//            FragmentManager fm = getSupportFragmentManager();
+//            waitingListFragment = WaitingListFragment.newInstance();
+//            waitingListFragment.show(fm, "fragment_waiting_list");
+//            return true;
+//        } else if (item.getItemId() == R.id.month_summary) {
+//            FragmentManager fm = getSupportFragmentManager();
+//            monthSummaryFragment = MonthSummaryFragment.newInstance(CalendarUtils.selectedDate);
+//            monthSummaryFragment.show(fm, "finances_fragment");
+//            return true;
+        } else
+            return super.onOptionsItemSelected(item);
+    }
+
+    private void setWeekView() {
+        tvMonthYear.setText(CalendarUtils.monthYearFromDate(CalendarUtils.selectedDate));
+
+        ArrayList<LocalDate> days = CalendarUtils.daysInWeekArray(CalendarUtils.selectedDate);
+        try {
+            executorService.execute(() -> {
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.clMonday, getCalendarDay(days, 0));
+                ft.replace(R.id.clTuesday, getCalendarDay(days, 1));
+                ft.replace(R.id.clWednesday, getCalendarDay(days, 2));
+                ft.replace(R.id.clThursday, getCalendarDay(days, 3));
+                ft.replace(R.id.clFriday, getCalendarDay(days, 4));
+                ft.replace(R.id.clSaturday, getCalendarDay(days, 5));
+                ft.commit();
+            });
+
+
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), " " + e.toString(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onRecyclerItemClicked(DogDto dog) {
+        this.activeClient = dog;
+        if (createAppointmentFragment != null && createAppointmentFragment.isVisible()) {
+            createAppointmentFragment.displayPhoneNumbers();
+        }
+    }
+
+    public DogDto getActiveDog() {
+        return activeClient;
+    }
+
+    @Override
+    public void onLabelItemClicked(LocalDate date, LocalTime time) {
+
+        FragmentManager fm = getSupportFragmentManager();
+        activeClient = null;
+        createAppointmentFragment = CreateAppointmentFragment.newInstance(new AppointmentDto(date, time));
+        createAppointmentFragment.show(fm, "fragment_edit_appointment");
+    }
+
+    @Override
+    public void onLabelItemLongClicked(View view, LocalDate date, LocalTime time) {
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupAppointmentOptions = inflater.inflate(R.layout.popup_lock_period, null);
+        PopupWindow popupWindow = new PopupWindow(popupAppointmentOptions, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
+
+        showPopupNextToView(view, popupWindow);
+        findTimeLockingViews(popupAppointmentOptions);
+
+        etLockEndTime.setText(time.plusMinutes(30).toString());
+        validateTimeButtons(time, time.plusMinutes(30));
+
+        btnTimeBack.setOnClickListener(view1 -> displayEarlierTime(time, etLockEndTime));
+        btnTimeForward.setOnClickListener(view1 -> displayLaterTime(time, etLockEndTime));
+        btnLockDate.setOnClickListener(view1 -> lockDate(popupWindow, etLockEndTime));
+    }
+
+
+    @NonNull
+    private CalendarDay getCalendarDay(ArrayList<LocalDate> days, int index) {
+        return CalendarDay.newInstance(
+                days.get(index),
+                appointmentsRequestDispatcher.getAppointmentsForTheDay(days.get(index))
+        );
+    }
+
+    @Override
+    public void onUnavailableItemClicked(View view, LocalDate date, LocalTime time) {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupAppointmentOptions = inflater.inflate(R.layout.popup_delete, null);
+        PopupWindow popupWindow = new PopupWindow(popupAppointmentOptions, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
+
+        showPopupNextToView(view, popupWindow);
+
+        btnDeleteAppointment = popupAppointmentOptions.findViewById(R.id.btnDelete);
+
+        btnDeleteAppointment.setOnClickListener(view1 -> {
+            DogsRequestDispatcher dbHelper = new DogsRequestDispatcher();
+            //todo thread
+            //dbHelper.deleteUnavailablePeriod(date);
+            popupWindow.dismiss();
+            setWeekView();
+        });
+    }
+
+    @Override
+    public void onClientNameClicked(TextView tv, LocalDate date, LocalTime time, long appointmentID, DogDto dto) {
+        PopupWindow popupWindow = createAddOrDeleteAppointmentPopup(tv);
+
+        btnDeleteAppointment.setOnClickListener(view -> {
+            //todo thread
+            executorService.execute(() -> {
+                appointmentsRequestDispatcher.deleteAppointment(appointmentID);
+                runOnUiThread(() -> {
+                    popupWindow.dismiss();
+                    setWeekView();
+                });
+            });
+        });
+
+        btnAddAppointment.setOnClickListener(view -> {
+            onLabelItemClicked(date, time);
+            popupWindow.dismiss();
+        });
+
+        btnNavigateToClient.setOnClickListener(view -> {
+            Intent switchActivityIntent = new Intent(this, DatabaseActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("dto", dto);
+            bundle.putInt("id", dto.getId());
+            switchActivityIntent.putExtras(bundle);
+            startActivity(switchActivityIntent);
+            popupWindow.dismiss();
+        });
+
+        btnMoveAppointmentUp.setOnClickListener(view -> {
+            //todo thread
+            executorService.execute(() -> {
+                AppointmentDto appointment = appointmentsRequestDispatcher.getAppointment(appointmentID);
+                LocalTime appointmentTime = appointment.getTime();
+                if (appointmentTime.isAfter(LocalTime.of(9, 0))) {
+                    appointment.setTime(appointment.getTime().minusMinutes(30));
+                    appointmentsRequestDispatcher.editAppointment(appointment);
+                    runOnUiThread(this::setWeekView);
+                }
+                runOnUiThread(popupWindow::dismiss);
+
+            });
+        });
+
+        btnMoveAppointmentDown.setOnClickListener(view -> {
+            //todo thread
+            executorService.execute(() -> {
+                AppointmentDto appointment = appointmentsRequestDispatcher.getAppointment(appointmentID);
+                LocalTime appointmentTime = appointment.getTime();
+                DogDto dog = appointment.getDogDto();
+                LocalTime appointmentEnd = appointmentTime.plusMinutes(dog.getExpectedAppointmentDuration());
+                if (appointmentEnd.isBefore(LocalTime.of(20, 0))) {
+                    appointment.setTime(appointment.getTime().plusMinutes(30));
+                    appointmentsRequestDispatcher.editAppointment(appointment);
+                    runOnUiThread(this::setWeekView);
+                }
+                runOnUiThread(popupWindow::dismiss);
+            });
+        });
+    }
+
+
+    public void onNotesButtonClicked(Button btn, String note) {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupAppointmentOptions = inflater.inflate(R.layout.popup_notes, null);
+        PopupWindow popupWindow = new PopupWindow(popupAppointmentOptions, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
+        TextView tvNote = popupAppointmentOptions.findViewById(R.id.tvNote);
+        tvNote.setText(note);
+        TextViewCompat.setAutoSizeTextTypeWithDefaults(tvNote, TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+        showPopupNextToView(btn, popupWindow);
+    }
+
+    @Override
+    public void refreshWeekView() {
+
+        setWeekView();
+        setWaitingListForShownWeek();
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent motionEvent) {
+        //this method allows motion events to have priority over calendar click listeners "underneath"
+        onTouchEvent(motionEvent);
+        return super.dispatchTouchEvent(motionEvent);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                x1 = event.getX();
+                y1 = event.getY();
+                break;
+            case MotionEvent.ACTION_UP:
+                float x2 = event.getX();
+                float y2 = event.getY();
+                float deltaX = x2 - x1;
+                float deltaY = y2 - y1;
+                if (deltaX > MIN_SWIPE_DISTANCE)
+                    previousWeek();
+                if (deltaX < -MIN_SWIPE_DISTANCE)
+                    nextWeek();
+                if (deltaY > MIN_SWIPE_DISTANCE)
+                    previousMonth();
+                if (deltaY < -MIN_SWIPE_DISTANCE)
+                    nextMonth();
+                break;
+        }
+        return super.onTouchEvent(event);
+    }
+
+
+    @Override
+    public void onNewRecordAdded() {
+        setWaitingListForShownWeek();
+        waitingListFragment.onNewRecordAdded();
+    }
+
+    @Override
+    public boolean onDayLabelLongClicked(View view, LocalDate date) {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupAppointmentOptions = inflater.inflate(R.layout.popup_lock_day, null);
+        PopupWindow popupWindow = new PopupWindow(popupAppointmentOptions, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
+        Button btnLock = popupAppointmentOptions.findViewById(R.id.btnLockDate);
+        btnLock.setOnClickListener(view1 -> {
+            //todo thread
+            //dogsRequestDispatcher.addUnavailablePeriod(date,LocalTime.of(8,0),LocalTime.of(20,00));
+            refreshWeekView();
+            popupWindow.dismiss();
+        });
+        showPopupNextToView(view, popupWindow);
+        return false;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            DogDto client = (DogDto) data.getSerializableExtra("client");
+            createAppointmentFragment.newClientCreated(client);
+        }
     }
 
     private void findViews() {
@@ -153,7 +437,7 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
         View popupWaitingList = inflater.inflate(R.layout.popup_waiting_list_for_chosen_week, null);
         PopupWindow popupWindow = new PopupWindow(popupWaitingList, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
         //todo thread
-       // List<WaitingListRecord> waitingListForTheWeek = requestDispatcher.getWaitingListForTheWeek(CalendarUtils.selectedDate);
+        // List<WaitingListRecord> waitingListForTheWeek = dogsRequestDispatcher.getWaitingListForTheWeek(CalendarUtils.selectedDate);
 //        int[] location = new int[2];
 //        ibWaitingListForDisplayedWeek.getLocationOnScreen(location);
 //        int x = location[0];
@@ -169,7 +453,7 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
     private void setWaitingListForShownWeek() {
 
         //todo thread
-//        waitingListForShownWeek = requestDispatcher.getWaitingListForTheWeek(CalendarUtils.selectedDate);
+//        waitingListForShownWeek = dogsRequestDispatcher.getWaitingListForTheWeek(CalendarUtils.selectedDate);
 //        if (waitingListForShownWeek.isEmpty()) {
 //            ibWaitingListForDisplayedWeek.setVisibility(View.GONE);
 //            tvWaitingListPreviewForDisplayedWeek.setVisibility(View.GONE);
@@ -177,7 +461,7 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
 //            ibWaitingListForDisplayedWeek.setVisibility(View.VISIBLE);
 //            tvWaitingListPreviewForDisplayedWeek.setVisibility(View.VISIBLE);
 //            int firstClientOnWaitingListId = waitingListForShownWeek.get(0).getClientID();
-//            DogDto firstClientOnWaitingList = requestDispatcher.getDog(firstClientOnWaitingListId);
+//            DogDto firstClientOnWaitingList = dogsRequestDispatcher.getDog(firstClientOnWaitingListId);
 //            int numberOfClientsOnWaitingList = waitingListForShownWeek.size();
 //            String waitingListPreview = firstClientOnWaitingList.getFullName();
 //            if (numberOfClientsOnWaitingList > 1) {
@@ -187,125 +471,20 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
 //        }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-        menu.findItem(R.id.calendar).setVisible(false);
-        return true;
+    private void showPopupNextToView(View view, PopupWindow popupWindow) {
+        int[] location = new int[2];
+        view.getLocationOnScreen(location);
+        int x = location[0];
+        int y = location[1];
+        view.measure(0, 0);
+        popupWindow.showAtLocation(this.findViewById(android.R.id.content), Gravity.NO_GRAVITY, x + view.getMeasuredWidth() / 2, y);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Intent switchActivityIntent;
-        if (item.getItemId() == R.id.dog_database) {
-            switchActivityIntent = new Intent(this, DatabaseActivity.class);
-            startActivity(switchActivityIntent);
-            return true;
-
-//        }else if (item.getItemId() == R.id.summary) {
-//            CalendarUtils.selectedDate = LocalDate.now();
-//            switchActivityIntent = new Intent(this, DailySummaryActivity.class);
-//            startActivity(switchActivityIntent);
-//            return true;
-//        } else if (item.getItemId() == R.id.send_text_reminders) {
-//            CalendarUtils.selectedDate = LocalDate.now();
-//            switchActivityIntent = new Intent(this, RemindersActivity.class);
-//            startActivity(switchActivityIntent);
-//            return true;
-//        } else if (item.getItemId() == R.id.waiting_list) {
-//            FragmentManager fm = getSupportFragmentManager();
-//            waitingListFragment = WaitingListFragment.newInstance();
-//            waitingListFragment.show(fm, "fragment_waiting_list");
-//            return true;
-//        } else if (item.getItemId() == R.id.month_summary) {
-//            FragmentManager fm = getSupportFragmentManager();
-//            monthSummaryFragment = MonthSummaryFragment.newInstance(CalendarUtils.selectedDate);
-//            monthSummaryFragment.show(fm, "finances_fragment");
-//            return true;
-        } else
-            return super.onOptionsItemSelected(item);
-    }
-
-    private void setWeekView() {
-        tvMonthYear.setText(CalendarUtils.monthYearFromDate(CalendarUtils.selectedDate));
-
-        ArrayList<LocalDate> days = CalendarUtils.daysInWeekArray(CalendarUtils.selectedDate);
-        try {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.clMonday, CalendarDay.newInstance(days.get(0)));
-            ft.replace(R.id.clTuesday, CalendarDay.newInstance(days.get(1)));
-            ft.replace(R.id.clWednesday, CalendarDay.newInstance(days.get(2)));
-            ft.replace(R.id.clThursday, CalendarDay.newInstance(days.get(3)));
-            ft.replace(R.id.clFriday, CalendarDay.newInstance(days.get(4)));
-            ft.replace(R.id.clSaturday, CalendarDay.newInstance(days.get(5)));
-            ft.commit();
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), " " + e.toString(), Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void onRecyclerItemClicked(DogDto dog) {
-        this.activeClient = dog;
-        if (createAppointmentFragment != null && createAppointmentFragment.isVisible()) {
-            createAppointmentFragment.displayPhoneNumbers();
-        }
-    }
-
-    public DogDto getActiveDog() {
-        return activeClient;
-    }
-
-    @Override
-    public void onLabelItemClicked(LocalDate date, LocalTime time) {
-
-        FragmentManager fm = getSupportFragmentManager();
-        activeClient = null;
-        createAppointmentFragment = CreateAppointmentFragment.newInstance(new Appointment(date, time));
-        createAppointmentFragment.show(fm, "fragment_edit_appointment");
-    }
-
-    @Override
-    public void onLabelItemLongClicked(View view, LocalDate date, LocalTime time) {
-
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupAppointmentOptions = inflater.inflate(R.layout.popup_lock_period, null);
-        PopupWindow popupWindow = new PopupWindow(popupAppointmentOptions, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
-        showPopupNextToView(view, popupWindow);
-
+    private void findTimeLockingViews(View popupAppointmentOptions) {
         btnLockDate = popupAppointmentOptions.findViewById(R.id.btnLockDate);
         btnTimeBack = popupAppointmentOptions.findViewById(R.id.btnTimeBack);
         btnTimeForward = popupAppointmentOptions.findViewById(R.id.btnTimeForward);
-
-        TextView etLockEndTime = popupAppointmentOptions.findViewById(R.id.etLockEndTime);
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-
-        etLockEndTime.setText(time.plusMinutes(30).toString());
-        validateTimeButtons(time, time.plusMinutes(30));
-        btnTimeBack.setOnClickListener(view1 -> {
-            LocalTime lockEndTime = LocalTime.parse(etLockEndTime.getText(), timeFormatter);
-            lockEndTime = lockEndTime.minusMinutes(30);
-            etLockEndTime.setText(lockEndTime.toString());
-            validateTimeButtons(time, lockEndTime);
-        });
-
-        btnTimeForward.setOnClickListener(view1 -> {
-            LocalTime lockEndTime = LocalTime.parse(etLockEndTime.getText(), timeFormatter);
-            lockEndTime = lockEndTime.plusMinutes(30);
-            etLockEndTime.setText(lockEndTime.toString());
-            validateTimeButtons(time, lockEndTime);
-        });
-
-        btnLockDate.setOnClickListener(view1 -> {
-            LocalTime lockEndTime = LocalTime.parse(etLockEndTime.getText(), timeFormatter);
-            RequestDispatcher requestDispatcher = new RequestDispatcher(this);
-            //todo thread
-            //requestDispatcher.addUnavailablePeriod(date, time, lockEndTime);
-            popupWindow.dismiss();
-            refreshWeekView();
-
-        });
+        etLockEndTime = popupAppointmentOptions.findViewById(R.id.etLockEndTime);
     }
 
     private void validateTimeButtons(LocalTime time, LocalTime lockEndTime) {
@@ -325,85 +504,27 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
         }
     }
 
-    private void showPopupNextToView(View view, PopupWindow popupWindow) {
-        int[] location = new int[2];
-        view.getLocationOnScreen(location);
-        int x = location[0];
-        int y = location[1];
-        view.measure(0, 0);
-        popupWindow.showAtLocation(this.findViewById(android.R.id.content), Gravity.NO_GRAVITY, x + view.getMeasuredWidth() / 2, y);
+    private void displayEarlierTime(LocalTime time, TextView etLockEndTime) {
+        LocalTime lockEndTime = LocalTime.parse(etLockEndTime.getText(), timeFormatter);
+        lockEndTime = lockEndTime.minusMinutes(30);
+        etLockEndTime.setText(lockEndTime.toString());
+        validateTimeButtons(time, lockEndTime);
     }
 
-    @Override
-    public void onUnavailableItemClicked(View view, LocalDate date, LocalTime time) {
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupAppointmentOptions = inflater.inflate(R.layout.popup_delete, null);
-        PopupWindow popupWindow = new PopupWindow(popupAppointmentOptions, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
-
-        showPopupNextToView(view, popupWindow);
-
-        btnDeleteAppointment = popupAppointmentOptions.findViewById(R.id.btnDelete);
-
-        btnDeleteAppointment.setOnClickListener(view1 -> {
-            RequestDispatcher dbHelper = new RequestDispatcher(this);
-            //todo thread
-            //dbHelper.deleteUnavailablePeriod(date);
-            popupWindow.dismiss();
-            setWeekView();
-        });
+    private void displayLaterTime(LocalTime time, TextView etLockEndTime) {
+        LocalTime lockEndTime = LocalTime.parse(etLockEndTime.getText(), timeFormatter);
+        lockEndTime = lockEndTime.plusMinutes(30);
+        etLockEndTime.setText(lockEndTime.toString());
+        validateTimeButtons(time, lockEndTime);
     }
 
-    @Override
-    public void onClientNameClicked(TextView tv, LocalDate date, LocalTime time, int appointmentID, DogDto dto) {
-        PopupWindow popupWindow = createAddOrDeleteAppointmentPopup(tv);
-
-        btnDeleteAppointment.setOnClickListener(view -> {
-            //todo thread
-            //requestDispatcher.deleteAppointment(appointmentID);
-            popupWindow.dismiss();
-            setWeekView();
-        });
-
-        btnAddAppointment.setOnClickListener(view -> {
-            onLabelItemClicked(date, time);
-            popupWindow.dismiss();
-        });
-
-        btnNavigateToClient.setOnClickListener(view -> {
-            Intent switchActivityIntent = new Intent(this, DatabaseActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("dto", dto);
-            switchActivityIntent.putExtras(bundle);
-            startActivity(switchActivityIntent);
-            popupWindow.dismiss();
-        });
-
-        btnMoveAppointmentUp.setOnClickListener(view -> {
-            //todo thread
-//            Appointment appointment = requestDispatcher.getAppointment(appointmentID);
-//            LocalTime appointmentTime = appointment.getTime();
-//            if (appointmentTime.isAfter(LocalTime.of(9, 0))) {
-//                appointment.setTime(appointment.getTime().minusMinutes(30));
-//                requestDispatcher.editAppointment(appointment);
-//                setWeekView();
-//            }
-            popupWindow.dismiss();
-        });
-
-        btnMoveAppointmentDown.setOnClickListener(view -> {
-            //todo thread
-//            Appointment appointment = requestDispatcher.getAppointment(appointmentID);
-//            LocalTime appointmentTime = appointment.getTime();
-
-//            DogDto dog = requestDispatcher.getDog(appointment.getClientID());
-//            LocalTime appointmentEnd = appointmentTime.plusMinutes(dog.getExpectedAppointmentDuration());
-//            if (appointmentEnd.isBefore(LocalTime.of(20, 0))) {
-//                appointment.setTime(appointment.getTime().plusMinutes(30));
-//                requestDispatcher.editAppointment(appointment);
-//                setWeekView();
-//            }
-            popupWindow.dismiss();
-        });
+    private void lockDate(PopupWindow popupWindow, TextView etLockEndTime) {
+        LocalTime lockEndTime = LocalTime.parse(etLockEndTime.getText(), timeFormatter);
+        DogsRequestDispatcher dogsRequestDispatcher = new DogsRequestDispatcher();
+        //todo thread
+        //dogsRequestDispatcher.addUnavailablePeriod(date, time, lockEndTime);
+        popupWindow.dismiss();
+        refreshWeekView();
     }
 
     private PopupWindow createAddOrDeleteAppointmentPopup(View view) {
@@ -418,86 +539,5 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
         btnMoveAppointmentUp = popupAppointmentOptions.findViewById(R.id.btnMoveAppointmentUp);
         btnMoveAppointmentDown = popupAppointmentOptions.findViewById(R.id.btnMoveAppointmentDown);
         return popupWindow;
-    }
-
-    public void onNotesButtonClicked(Button btn, String note) {
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupAppointmentOptions = inflater.inflate(R.layout.popup_notes, null);
-        PopupWindow popupWindow = new PopupWindow(popupAppointmentOptions, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
-        TextView tvNote = popupAppointmentOptions.findViewById(R.id.tvNote);
-        tvNote.setText(note);
-        TextViewCompat.setAutoSizeTextTypeWithDefaults(tvNote, TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM);
-        showPopupNextToView(btn, popupWindow);
-    }
-
-    @Override
-    public void refreshWeekView() {
-
-        setWeekView();
-        setWaitingListForShownWeek();
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent motionEvent) {
-        //this method allows motion events to have priority over calendar click listeners "underneath"
-        onTouchEvent(motionEvent);
-        return super.dispatchTouchEvent(motionEvent);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                x1 = event.getX();
-                y1 = event.getY();
-                break;
-            case MotionEvent.ACTION_UP:
-                float x2 = event.getX();
-                float y2 = event.getY();
-                float deltaX = x2 - x1;
-                float deltaY = y2 - y1;
-                if (deltaX > MIN_SWIPE_DISTANCE)
-                    previousWeek();
-                if (deltaX < -MIN_SWIPE_DISTANCE)
-                    nextWeek();
-                if (deltaY > MIN_SWIPE_DISTANCE)
-                    previousMonth();
-                if (deltaY < -MIN_SWIPE_DISTANCE)
-                    nextMonth();
-                break;
-        }
-        return super.onTouchEvent(event);
-    }
-
-
-    @Override
-    public void onNewRecordAdded() {
-        setWaitingListForShownWeek();
-        waitingListFragment.onNewRecordAdded();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
-            DogDto client = (DogDto) data.getSerializableExtra("client");
-            createAppointmentFragment.newClientCreated(client);
-        }
-    }
-
-    @Override
-    public boolean onDayLabelLongClicked(View view,LocalDate date) {
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupAppointmentOptions = inflater.inflate(R.layout.popup_lock_day, null);
-        PopupWindow popupWindow = new PopupWindow(popupAppointmentOptions, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
-        Button btnLock = popupAppointmentOptions.findViewById(R.id.btnLockDate);
-        btnLock.setOnClickListener(view1 -> {
-            //todo thread
-            //requestDispatcher.addUnavailablePeriod(date,LocalTime.of(8,0),LocalTime.of(20,00));
-            refreshWeekView();
-            popupWindow.dismiss();
-        });
-        showPopupNextToView(view, popupWindow);
-        return false;
     }
 }

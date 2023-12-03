@@ -1,4 +1,4 @@
-package com.ndurska.coco_client.database;
+package com.ndurska.coco_client.database.dto;
 
 
 public class ContactNameAndPhoneNumberDTO {

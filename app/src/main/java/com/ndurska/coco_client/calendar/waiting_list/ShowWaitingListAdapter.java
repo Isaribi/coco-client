@@ -13,19 +13,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ndurska.coco_client.R;
 import com.ndurska.coco_client.calendar.CalendarActivity;
-import com.ndurska.coco_client.shared.RequestDispatcher;
+import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 
 import java.util.List;
 
 public class ShowWaitingListAdapter extends RecyclerView.Adapter<WaitingListRecordVH> {
     List<WaitingListRecord> waitingList;
     CalendarActivity context;
-    RequestDispatcher requestDispatcher;
+    DogsRequestDispatcher dogsRequestDispatcher;
 
     public ShowWaitingListAdapter(Context context, List<WaitingListRecord> waitingList) {
         this.waitingList = waitingList;
         this.context = (CalendarActivity) context;
-        requestDispatcher = new RequestDispatcher(context);
+        dogsRequestDispatcher = new DogsRequestDispatcher();
     }
 
     @NonNull
@@ -47,14 +47,14 @@ public class ShowWaitingListAdapter extends RecyclerView.Adapter<WaitingListReco
             WaitingListRecord waitingListRecord = waitingList.get(position);
             //todo fix this with entities
             //todo thread
-//            DogDto client = requestDispatcher.getDog(waitingListRecord.getClientID());
+//            DogDto client = dogsRequestDispatcher.getDog(waitingListRecord.getClientID());
 //            holder.tvClientName.setText(client.getFullName());
 //            holder.tvDateStart.setText(CalendarUtils.dayMonthFromDate(waitingListRecord.getDateStart()));
 //            holder.tvDateEnd.setText(CalendarUtils.dayMonthFromDate(waitingListRecord.getDateEnd()));
 //            holder.tvNotes.setText(waitingListRecord.getNotes());
 //            holder.btnDelete.setOnClickListener(view -> {
 //                removeAt(position);
-//                requestDispatcher.deleteRecordFromWaitingList(waitingListRecord.getID());
+//                dogsRequestDispatcher.deleteRecordFromWaitingList(waitingListRecord.getID());
 //                context.refreshWeekView();
 //            });
 

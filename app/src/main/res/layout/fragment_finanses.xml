@@ -6,7 +6,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@color/color_coco_4"
-    tools:context=".calendar_activity.appointment.CreateAppointmentFragment">
+    tools:context=".calendar_activity.appointmentDto.CreateAppointmentFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/header"

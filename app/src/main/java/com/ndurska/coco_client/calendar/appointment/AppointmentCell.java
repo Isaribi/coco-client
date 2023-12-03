@@ -1,7 +1,8 @@
 package com.ndurska.coco_client.calendar.appointment;
 
+import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
 import com.ndurska.coco_client.calendar.unavailable_period.UnavailablePeriod;
-import com.ndurska.coco_client.database.DogDto;
+import com.ndurska.coco_client.database.dto.DogDto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -11,12 +12,12 @@ import java.util.Objects;
 
 /**
  * AppointmentCell is a representation of a single 30 minute cell of appointment calendar. Similar to a ViewHolder.
- * AppointmentCell objects of the same day share static lists of clients and appointments and set their behaviour and appearance accordingly.
+ * AppointmentCell objects of the same day share static lists of clients and appointmentDtos and set their behaviour and appearance accordingly.
  */
 
 public class AppointmentCell {
     private final List<AppointmentHeader> appointmentHeaders;
-    private final List<Integer> IDs;
+    private final List<Long> IDs;
     private int numberOfAppointments;
     private boolean unavailable;
     private boolean firstCellOfAppointment;
@@ -24,7 +25,7 @@ public class AppointmentCell {
     private boolean middleCellOfAppointment;
     private final LocalTime time;
     private final LocalDate date;
-    private static ArrayList<Appointment> appointments;
+    private static ArrayList<AppointmentDto> appointmentDtos;
     private static ArrayList<DogDto> dogs;
     private static ArrayList<UnavailablePeriod> unavailablePeriods;
 
@@ -34,39 +35,37 @@ public class AppointmentCell {
         appointmentHeaders = new ArrayList<>();
         IDs = new ArrayList<>();
         setThisDayAppointments();
-
     }
 
     private void setThisDayAppointments() {
         int timeInMinutes = time.getHour() * 60 + time.getMinute();
-        unavailable = checkIfUnavailable(timeInMinutes);
-        for (Appointment appointment : appointments) {
-            checkIfFirstCellOfAppointment(appointment);
-            checkIfLastOrMiddleCellOfAppointment(appointment, timeInMinutes);
-
+        //unavailable = checkIfUnavailable(timeInMinutes);
+        for (AppointmentDto appointmentDto : appointmentDtos) {
+            checkIfFirstCellOfAppointment(appointmentDto);
+            checkIfLastOrMiddleCellOfAppointment(appointmentDto, timeInMinutes);
         }
     }
 
-    private void checkIfFirstCellOfAppointment(Appointment appointment) {
-        if (Objects.equals(appointment.getTime(), time)) {
+    private void checkIfFirstCellOfAppointment(AppointmentDto appointmentDto) {
+        if (Objects.equals(appointmentDto.getTime(), time)) {
             for (DogDto dog : dogs)
-                if (dog.getId() == appointment.getClientID()) {
-                    appointmentHeaders.add(new AppointmentHeader(dog, appointment.getNotes()));
-                    IDs.add(appointment.getID());
+                if (dog == appointmentDto.getDogDto()) {
+                    appointmentHeaders.add(new AppointmentHeader(dog, appointmentDto.getNotes()));
+                    IDs.add(appointmentDto.getId());
                     firstCellOfAppointment = true;
                 }
             numberOfAppointments++;
         }
     }
 
-    private void checkIfLastOrMiddleCellOfAppointment(Appointment appointment, int timeInMinutes) {
+    private void checkIfLastOrMiddleCellOfAppointment(AppointmentDto appointmentDto, int timeInMinutes) {
         for (DogDto dog : dogs)
-            if (dog.getId() == appointment.getClientID()) {
-                int appStartInMinutes = appointment.getTime().getHour() * 60 + appointment.getTime().getMinute();
+            if (dog == appointmentDto.getDogDto()) {
+                int appStartInMinutes = appointmentDto.getTime().getHour() * 60 + appointmentDto.getTime().getMinute();
                 int appEndInMinutes = appStartInMinutes + dog.getExpectedAppointmentDuration();
                 if (timeInMinutes > appStartInMinutes && timeInMinutes < appEndInMinutes) {
                     numberOfAppointments++;
-                    //check if this is a last time cell of any appointment with some time flexibility (so 40 minutes of appointment will use two cells)
+                    //check if this is a last time cell of any appointmentDto with some time flexibility (so 40 minutes of appointmentDto will use two cells)
                     if (timeInMinutes >= appEndInMinutes - 30 && timeInMinutes <= appEndInMinutes + 30)
                         lastCellOfAppointment = true;
                     else if (!firstCellOfAppointment)//if not first and not last it has to be middle one
@@ -86,6 +85,8 @@ public class AppointmentCell {
         return false;
     }
 
+    //boilerplate code
+
     public LocalTime getTime() {
         return time;
     }
@@ -94,8 +95,8 @@ public class AppointmentCell {
         return date;
     }
 
-    public static void setAppointments(ArrayList<Appointment> appointments) {
-        AppointmentCell.appointments = appointments;
+    public static void setAppointments(ArrayList<AppointmentDto> appointmentDtos) {
+        AppointmentCell.appointmentDtos = appointmentDtos;
     }
 
     public static void setDogs(ArrayList<DogDto> dogs) {
@@ -110,7 +111,7 @@ public class AppointmentCell {
         return appointmentHeaders.get(i);
     }
 
-    public int getAppointmentID(int i) {
+    public long getAppointmentID(int i) {
         return IDs.get(i);
     }
 

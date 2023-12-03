@@ -1,5 +1,7 @@
 package com.ndurska.coco_client.calendar.appointment;
 
+import static com.ndurska.coco_client.calendar.CalendarActivity.executorService;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -21,16 +23,18 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.ndurska.coco_client.shared.ChooseDogAdapter;
-import com.ndurska.coco_client.shared.DogFilter;
 import com.ndurska.coco_client.R;
 import com.ndurska.coco_client.calendar.CalendarActivity;
 import com.ndurska.coco_client.calendar.CalendarUtils;
 import com.ndurska.coco_client.calendar.ChooseMultipleClientsAdapter;
+import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
+import com.ndurska.coco_client.calendar.appointment.web.AppointmentsRequestDispatcher;
 import com.ndurska.coco_client.calendar.waiting_list.WaitingListRecord;
-import com.ndurska.coco_client.database.DogDto;
 import com.ndurska.coco_client.database.DatabaseActivity;
-import com.ndurska.coco_client.shared.RequestDispatcher;
+import com.ndurska.coco_client.database.dto.DogDto;
+import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
+import com.ndurska.coco_client.shared.ChooseDogAdapter;
+import com.ndurska.coco_client.shared.DogFilter;
 import com.ndurska.coco_client.shared.TextWatcherAdapter;
 
 import java.time.LocalDate;
@@ -42,12 +46,12 @@ import java.util.List;
 
 public class CreateAppointmentFragment extends DialogFragment {
 
-    public static final String APPOINTMENT = "appointment";
+    public static final String APPOINTMENT = "appointmentDto";
     private final int LAUNCH_ACTIVITY_TO_CREATE_CLIENT = 1;
 
     private CalendarActivity activity;
     private DogDto dog;
-    private Appointment appointment;
+    private AppointmentDto appointmentDto;
     private LocalDate date;
     private LocalTime time;
     private List<DogDto> dogs;
@@ -60,12 +64,13 @@ public class CreateAppointmentFragment extends DialogFragment {
 
 
     private EditAppointmentListener listener;
-    private RequestDispatcher requestDispatcher;
+    private DogsRequestDispatcher dogsRequestDispatcher;
+    private AppointmentsRequestDispatcher appointmentsRequestDispatcher;
 
     public void newClientCreated(DogDto dog) {
         dogs.add(dog);
-        refreshClientSetResults(dog.getFullName());
-        etClientSearch.setText(dog.getFullName());
+        refreshClientSetResults(dog.clientFullName());
+        etClientSearch.setText(dog.clientFullName());
     }
 
     public interface EditAppointmentListener {
@@ -76,10 +81,10 @@ public class CreateAppointmentFragment extends DialogFragment {
         // Required empty public constructor
     }
 
-    public static CreateAppointmentFragment newInstance(Appointment appointment) {
+    public static CreateAppointmentFragment newInstance(AppointmentDto appointmentDto) {
         CreateAppointmentFragment fragment = new CreateAppointmentFragment();
         Bundle args = new Bundle();
-        args.putSerializable(APPOINTMENT, appointment);
+        args.putSerializable(APPOINTMENT, appointmentDto);
         fragment.setArguments(args);
         return fragment;
     }
@@ -96,13 +101,14 @@ public class CreateAppointmentFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestDispatcher = new RequestDispatcher(getActivity());
-        //todo thread
-       // dogs = requestDispatcher.getClients();
+        dogsRequestDispatcher = new DogsRequestDispatcher();
+        appointmentsRequestDispatcher = new AppointmentsRequestDispatcher();
+        executorService.execute(
+                () -> dogs = dogsRequestDispatcher.getDogs());
         if (getArguments() != null) {
-            appointment = (Appointment) getArguments().getSerializable(APPOINTMENT);
-            date = appointment.getDate();
-            time = appointment.getTime();
+            appointmentDto = (AppointmentDto) getArguments().getSerializable(APPOINTMENT);
+            date = appointmentDto.getDate();
+            time = appointmentDto.getTime();
         }
     }
 
@@ -126,7 +132,9 @@ public class CreateAppointmentFragment extends DialogFragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                refreshClientSetResults(String.valueOf(editable));
+                if (dogs != null) {
+                    refreshClientSetResults(String.valueOf(editable));
+                }
             }
 
         });
@@ -140,16 +148,20 @@ public class CreateAppointmentFragment extends DialogFragment {
                             checkIfClientIsOnWaitingList(dog);
                             sendTextWithAppointmentDate();
                             listener.refreshWeekView();
-//todo thread
-                            ArrayList<DogDto> sameOwnerDogs = (ArrayList<DogDto>) requestDispatcher.getSameOwnerDogs(dog.getId());
-                            if (!sameOwnerDogs.isEmpty()) {
-                                displayPromptForMoreAppointments();
-                                ChooseMultipleClientsAdapter adapter = new ChooseMultipleClientsAdapter(sameOwnerDogs, getContext());
-                                rvClientList.setAdapter(adapter);
-                                switchThisListenerToSavingMultipleClients(adapter);
-                            } else {
-                                dismiss();
-                            }
+                            executorService.execute(() -> {
+                                ArrayList<DogDto> sameOwnerDogs = (ArrayList<DogDto>) dogsRequestDispatcher.getSameOwnerDogs(dog.getId());
+                                if (!sameOwnerDogs.isEmpty()) {
+                                    activity.runOnUiThread(() -> {
+                                        displayPromptForMoreAppointments();
+                                        ChooseMultipleClientsAdapter adapter = new ChooseMultipleClientsAdapter(sameOwnerDogs, getContext());
+                                        rvClientList.setAdapter(adapter);
+                                        switchThisListenerToSavingMultipleClients(adapter);
+                                    });
+
+                                } else {
+                                    dismiss();
+                                }
+                            });
                         } else {
                             dismiss();
                         }
@@ -195,12 +207,13 @@ public class CreateAppointmentFragment extends DialogFragment {
     private boolean createAppointment(LocalTime time, DogDto dog, String etAppointmentNotes) {
         LocalTime appointmentEnd = time.plusMinutes(dog.getExpectedAppointmentDuration());
         if (appointmentEnd.isBefore(LocalTime.of(20, 1))) {
-            appointment.setDate(date);
-            appointment.setTime(time);
-            appointment.setClientID(dog.getId());
-            appointment.setNotes(etAppointmentNotes);
-            //todo thread
-            //return requestDispatcher.addAppointment(appointment);
+            appointmentDto.setDate(date);
+            appointmentDto.setTime(time);
+            appointmentDto.setDogDto(dog);
+            appointmentDto.setNotes(etAppointmentNotes);
+            executorService.execute(() -> {
+                appointmentsRequestDispatcher.addAppointment(appointmentDto);
+            });
             return true;
         } else {
             Toast.makeText(activity, "Wizyta skończy się zbyt późno!", Toast.LENGTH_LONG).show();
@@ -214,7 +227,7 @@ public class CreateAppointmentFragment extends DialogFragment {
 
     private void checkIfClientIsOnWaitingList(DogDto dog) {
         //todo thread
-        //List<WaitingListRecord> waitingListForTheDay = requestDispatcher.getWaitingListForTheDay(date);
+        //List<WaitingListRecord> waitingListForTheDay = dogsRequestDispatcher.getWaitingListForTheDay(date);
         List<WaitingListRecord> waitingListForTheDay = List.of();
 
         for (WaitingListRecord record : waitingListForTheDay) {
@@ -227,11 +240,11 @@ public class CreateAppointmentFragment extends DialogFragment {
     private void showConfirmationDialog(WaitingListRecord waitingListRecord, DogDto dto) {
         new AlertDialog.Builder(getContext())
                 .setTitle(R.string.delete_from_waiting_list)
-                .setMessage(dto.getFullName() + getString(R.string.is_on_waiting_list))
+                .setMessage(dto.clientFullName() + getString(R.string.is_on_waiting_list))
 
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     //todo thread
-                    //requestDispatcher.deleteRecordFromWaitingList(waitingListRecord.getID());
+                    //dogsRequestDispatcher.deleteRecordFromWaitingList(waitingListRecord.getID());
                     listener.refreshWeekView();
                 })
                 .setNegativeButton(android.R.string.no, null)
