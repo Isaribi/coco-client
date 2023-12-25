@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,7 +15,7 @@ import com.ndurska.coco_client.R;
 import com.ndurska.coco_client.calendar.appointment.AppointmentAdapter;
 import com.ndurska.coco_client.calendar.appointment.AppointmentCell;
 import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
-import com.ndurska.coco_client.calendar.unavailable_period.UnavailablePeriod;
+import com.ndurska.coco_client.calendar.unavailable_period.UnavailablePeriodDto;
 import com.ndurska.coco_client.database.dto.DogDto;
 
 import java.io.Serializable;
@@ -35,9 +34,8 @@ public class CalendarDay extends Fragment {
     LinearLayout llLabels;
     List<AppointmentDto> appointmentDtos;
     List<DogDto> dogs;
-    List<UnavailablePeriod> unavailablePeriods;
+    List<UnavailablePeriodDto> unavailablePeriodDtos;
     private AppointmentAdapterListener listener;
-    private CalendarActivity activity;
 
 
     public interface AppointmentAdapterListener {
@@ -52,11 +50,12 @@ public class CalendarDay extends Fragment {
         return date;
     }
 
-    public static CalendarDay newInstance(LocalDate date, List<AppointmentDto> appointmentDtos) {
+    public static CalendarDay newInstance(LocalDate date, List<AppointmentDto> appointmentDtos, List<UnavailablePeriodDto> unavailablePeriodDtos) {
         CalendarDay fragment = new CalendarDay();
         Bundle args = new Bundle();
         args.putSerializable("date", date);
         args.putSerializable("appointmentDtos", (Serializable) appointmentDtos);
+        args.putSerializable("unavailablePeriodDtos", (Serializable) unavailablePeriodDtos);
         fragment.setArguments(args);
         return fragment;
     }
@@ -68,20 +67,8 @@ public class CalendarDay extends Fragment {
         if (getArguments() != null) {
             date = (LocalDate) getArguments().getSerializable("date");
             appointmentDtos = (List<AppointmentDto>) getArguments().getSerializable("appointmentDtos");
+            unavailablePeriodDtos = (List<UnavailablePeriodDto>) getArguments().getSerializable("unavailablePeriodDtos");
             dogs = appointmentDtos.stream().map(AppointmentDto::getDogDto).collect(Collectors.toList());
-        }
-        activity = (CalendarActivity) getActivity();
-
-
-    }
-
-    private void findAppointmentsForTheDay() {
-
-        try {
-            //unavailablePeriods = appointmentsRequestDispatcher1.getUnavailablePeriodsForTheDay(date);
-            unavailablePeriods = new ArrayList<>();
-        } catch (Exception e) {
-            Toast.makeText(getActivity(), "CalendarDay.OnCreate(): " + e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -101,7 +88,6 @@ public class CalendarDay extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_calendar_day, container, false);
         llLabels = view.findViewById(R.id.llLabels);
-        findAppointmentsForTheDay();
         setCellAdapter();
         return view;
     }
@@ -110,7 +96,7 @@ public class CalendarDay extends Fragment {
         ArrayList<AppointmentCell> list = new ArrayList<>();
         AppointmentCell.setAppointments((ArrayList<AppointmentDto>) appointmentDtos);
         AppointmentCell.setDogs((ArrayList<DogDto>) dogs);
-        AppointmentCell.setUnavailablePeriods((ArrayList<UnavailablePeriod>) unavailablePeriods);
+        AppointmentCell.setUnavailablePeriods((ArrayList<UnavailablePeriodDto>) unavailablePeriodDtos);
 
         for (int hour = 9; hour <= 19; hour++) {
             for (int minutes = 0; minutes <= 30; minutes += 30) {

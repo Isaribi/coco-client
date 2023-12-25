@@ -23,19 +23,28 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.ndurska.coco_client.R;
 import com.ndurska.coco_client.calendar.appointment.AppointmentAdapter;
 import com.ndurska.coco_client.calendar.appointment.CreateAppointmentFragment;
 import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
 import com.ndurska.coco_client.calendar.appointment.web.AppointmentsRequestDispatcher;
+import com.ndurska.coco_client.calendar.monthlysummary.MonthSummaryFragment;
+import com.ndurska.coco_client.calendar.monthlysummary.MonthlySummaryRequestDispatcher;
+import com.ndurska.coco_client.calendar.unavailable_period.UnavailablePeriodDto;
+import com.ndurska.coco_client.calendar.unavailable_period.UnavailablePeriodRequestDispatcher;
 import com.ndurska.coco_client.calendar.waiting_list.AddWaitingListRecordFragment;
+import com.ndurska.coco_client.calendar.waiting_list.ShowWaitingListAdapter;
 import com.ndurska.coco_client.calendar.waiting_list.WaitingListFragment;
-import com.ndurska.coco_client.calendar.waiting_list.WaitingListRecord;
+import com.ndurska.coco_client.calendar.waiting_list.WaitingListRecordDto;
+import com.ndurska.coco_client.calendar.waiting_list.WaitingListRequestDispatcher;
 import com.ndurska.coco_client.database.DatabaseActivity;
 import com.ndurska.coco_client.database.dto.DogDto;
 import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 import com.ndurska.coco_client.shared.ChooseDogAdapter;
+import com.ndurska.coco_client.summary.DailySummaryActivity;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -61,16 +70,19 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
     ConstraintLayout friday;
     ConstraintLayout saturday;
 
-    Button nextWeek, nextMonth, prevWeek, prevMonth, btnDeleteAppointment, btnAddAppointment, btnNavigateToClient, btnMoveAppointmentUp, btnMoveAppointmentDown;
+    Button nextWeek, nextMonth, prevWeek, prevMonth, btnDeleteUnavailablePeriod, btnAddAppointment, btnNavigateToClient, btnMoveAppointmentUp, btnMoveAppointmentDown;
     ImageButton ibWaitingListForDisplayedWeek;
 
     CreateAppointmentFragment createAppointmentFragment;
     WaitingListFragment waitingListFragment;
-    //MonthSummaryFragment monthSummaryFragment;
+    MonthSummaryFragment monthSummaryFragment;
 
-    List<WaitingListRecord> waitingListForShownWeek;
+    List<WaitingListRecordDto> waitingListForShownWeek;
     DogsRequestDispatcher dogsRequestDispatcher;
     AppointmentsRequestDispatcher appointmentsRequestDispatcher;
+    UnavailablePeriodRequestDispatcher unavailablePeriodRequestDispatcher;
+    WaitingListRequestDispatcher waitingListRequestDispatcher;
+    MonthlySummaryRequestDispatcher monthlySummaryRequestDispatcher;
 
     DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -91,6 +103,9 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
         setContentView(R.layout.activity_calendar);
         dogsRequestDispatcher = new DogsRequestDispatcher();
         appointmentsRequestDispatcher = new AppointmentsRequestDispatcher();
+        unavailablePeriodRequestDispatcher = new UnavailablePeriodRequestDispatcher();
+        waitingListRequestDispatcher = new WaitingListRequestDispatcher();
+        monthlySummaryRequestDispatcher = new MonthlySummaryRequestDispatcher();
         executorService = Executors.newFixedThreadPool(10);
         findViews();
         initToolbar();
@@ -115,26 +130,32 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
             startActivity(switchActivityIntent);
             return true;
 
-//        }else if (item.getItemId() == R.id.summary) {
-//            CalendarUtils.selectedDate = LocalDate.now();
-//            switchActivityIntent = new Intent(this, DailySummaryActivity.class);
-//            startActivity(switchActivityIntent);
-//            return true;
+        } else if (item.getItemId() == R.id.summary) {
+            CalendarUtils.selectedDate = LocalDate.now();
+            switchActivityIntent = new Intent(this, DailySummaryActivity.class);
+            startActivity(switchActivityIntent);
+            return true;
 //        } else if (item.getItemId() == R.id.send_text_reminders) {
 //            CalendarUtils.selectedDate = LocalDate.now();
 //            switchActivityIntent = new Intent(this, RemindersActivity.class);
 //            startActivity(switchActivityIntent);
 //            return true;
-//        } else if (item.getItemId() == R.id.waiting_list) {
-//            FragmentManager fm = getSupportFragmentManager();
-//            waitingListFragment = WaitingListFragment.newInstance();
-//            waitingListFragment.show(fm, "fragment_waiting_list");
-//            return true;
-//        } else if (item.getItemId() == R.id.month_summary) {
-//            FragmentManager fm = getSupportFragmentManager();
-//            monthSummaryFragment = MonthSummaryFragment.newInstance(CalendarUtils.selectedDate);
-//            monthSummaryFragment.show(fm, "finances_fragment");
-//            return true;
+        } else if (item.getItemId() == R.id.waiting_list) {
+            FragmentManager fm = getSupportFragmentManager();
+            executorService.execute(() -> {
+                waitingListFragment = WaitingListFragment.newInstance(waitingListRequestDispatcher.getWaitingList());
+                waitingListFragment.show(fm, "fragment_waiting_list");
+
+            });
+            return true;
+        } else if (item.getItemId() == R.id.month_summary) {
+            FragmentManager fm = getSupportFragmentManager();
+            executorService.execute(()->{
+                monthSummaryFragment = MonthSummaryFragment.newInstance(monthlySummaryRequestDispatcher.getMonthlySummary(CalendarUtils.selectedDate));
+                monthSummaryFragment.show(fm, "finances_fragment");
+
+            });
+            return true;
         } else
             return super.onOptionsItemSelected(item);
     }
@@ -197,7 +218,7 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
 
         btnTimeBack.setOnClickListener(view1 -> displayEarlierTime(time, etLockEndTime));
         btnTimeForward.setOnClickListener(view1 -> displayLaterTime(time, etLockEndTime));
-        btnLockDate.setOnClickListener(view1 -> lockDate(popupWindow, etLockEndTime));
+        btnLockDate.setOnClickListener(view1 -> lockDate(date, time, popupWindow, etLockEndTime));
     }
 
 
@@ -205,7 +226,8 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
     private CalendarDay getCalendarDay(ArrayList<LocalDate> days, int index) {
         return CalendarDay.newInstance(
                 days.get(index),
-                appointmentsRequestDispatcher.getAppointmentsForTheDay(days.get(index))
+                appointmentsRequestDispatcher.getAppointmentsForTheDay(days.get(index)),
+                unavailablePeriodRequestDispatcher.getUnavailablePeriodsForTheDay(days.get(index))
         );
     }
 
@@ -217,14 +239,17 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
 
         showPopupNextToView(view, popupWindow);
 
-        btnDeleteAppointment = popupAppointmentOptions.findViewById(R.id.btnDelete);
+        btnDeleteUnavailablePeriod = popupAppointmentOptions.findViewById(R.id.btnDelete);
 
-        btnDeleteAppointment.setOnClickListener(view1 -> {
-            DogsRequestDispatcher dbHelper = new DogsRequestDispatcher();
-            //todo thread
-            //dbHelper.deleteUnavailablePeriod(date);
-            popupWindow.dismiss();
-            setWeekView();
+        btnDeleteUnavailablePeriod.setOnClickListener(view1 -> {
+            executorService.execute(() -> {
+                unavailablePeriodRequestDispatcher.deleteUnavailablePeriodsForDay(date);
+                runOnUiThread(() -> {
+                    popupWindow.dismiss();
+                    setWeekView();
+
+                });
+            });
         });
     }
 
@@ -232,7 +257,7 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
     public void onClientNameClicked(TextView tv, LocalDate date, LocalTime time, long appointmentID, DogDto dto) {
         PopupWindow popupWindow = createAddOrDeleteAppointmentPopup(tv);
 
-        btnDeleteAppointment.setOnClickListener(view -> {
+        btnDeleteUnavailablePeriod.setOnClickListener(view -> {
             //todo thread
             executorService.execute(() -> {
                 appointmentsRequestDispatcher.deleteAppointment(appointmentID);
@@ -353,12 +378,11 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
         View popupAppointmentOptions = inflater.inflate(R.layout.popup_lock_day, null);
         PopupWindow popupWindow = new PopupWindow(popupAppointmentOptions, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
         Button btnLock = popupAppointmentOptions.findViewById(R.id.btnLockDate);
-        btnLock.setOnClickListener(view1 -> {
-            //todo thread
-            //dogsRequestDispatcher.addUnavailablePeriod(date,LocalTime.of(8,0),LocalTime.of(20,00));
-            refreshWeekView();
-            popupWindow.dismiss();
-        });
+        btnLock.setOnClickListener(view1 -> executorService.execute(() -> {
+            unavailablePeriodRequestDispatcher.addUnavailablePeriod(new UnavailablePeriodDto(date, LocalTime.of(8, 0), LocalTime.of(20, 00)));
+            runOnUiThread(this::refreshWeekView);
+            runOnUiThread(popupWindow::dismiss);
+        }));
         showPopupNextToView(view, popupWindow);
         return false;
     }
@@ -437,38 +461,47 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
         View popupWaitingList = inflater.inflate(R.layout.popup_waiting_list_for_chosen_week, null);
         PopupWindow popupWindow = new PopupWindow(popupWaitingList, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
         //todo thread
-        // List<WaitingListRecord> waitingListForTheWeek = dogsRequestDispatcher.getWaitingListForTheWeek(CalendarUtils.selectedDate);
-//        int[] location = new int[2];
-//        ibWaitingListForDisplayedWeek.getLocationOnScreen(location);
-//        int x = location[0];
-//        int y = location[1];
-//        ibWaitingListForDisplayedWeek.measure(0, 0);
-//        popupWindow.showAtLocation(this.findViewById(android.R.id.content), Gravity.NO_GRAVITY, x + ibWaitingListForDisplayedWeek.getMeasuredWidth() / 2, y);
-//
-//        RecyclerView rvWaitingListForShownWeek = popupWaitingList.findViewById(R.id.rvWaitingListForTheWeek);
-//        rvWaitingListForShownWeek.setLayoutManager(new LinearLayoutManager(this));
-//        rvWaitingListForShownWeek.setAdapter(new ShowWaitingListAdapter(this, waitingListForTheWeek));
+        executorService.execute(() -> {
+            List<WaitingListRecordDto> waitingListForTheWeek = waitingListRequestDispatcher.getWaitingListForChosenWeek(CalendarUtils.selectedDate);
+            int[] location = new int[2];
+            ibWaitingListForDisplayedWeek.getLocationOnScreen(location);
+            int x = location[0];
+            int y = location[1];
+            ibWaitingListForDisplayedWeek.measure(0, 0);
+            runOnUiThread(() -> {
+                popupWindow.showAtLocation(this.findViewById(android.R.id.content), Gravity.NO_GRAVITY, x + ibWaitingListForDisplayedWeek.getMeasuredWidth() / 2, y);
+
+                RecyclerView rvWaitingListForShownWeek = popupWaitingList.findViewById(R.id.rvWaitingListForTheWeek);
+                rvWaitingListForShownWeek.setLayoutManager(new LinearLayoutManager(this));
+                rvWaitingListForShownWeek.setAdapter(new ShowWaitingListAdapter(this, waitingListForTheWeek));
+            });
+        });
+
     }
 
     private void setWaitingListForShownWeek() {
 
         //todo thread
-//        waitingListForShownWeek = dogsRequestDispatcher.getWaitingListForTheWeek(CalendarUtils.selectedDate);
-//        if (waitingListForShownWeek.isEmpty()) {
-//            ibWaitingListForDisplayedWeek.setVisibility(View.GONE);
-//            tvWaitingListPreviewForDisplayedWeek.setVisibility(View.GONE);
-//        } else {
-//            ibWaitingListForDisplayedWeek.setVisibility(View.VISIBLE);
-//            tvWaitingListPreviewForDisplayedWeek.setVisibility(View.VISIBLE);
-//            int firstClientOnWaitingListId = waitingListForShownWeek.get(0).getClientID();
-//            DogDto firstClientOnWaitingList = dogsRequestDispatcher.getDog(firstClientOnWaitingListId);
-//            int numberOfClientsOnWaitingList = waitingListForShownWeek.size();
-//            String waitingListPreview = firstClientOnWaitingList.getFullName();
-//            if (numberOfClientsOnWaitingList > 1) {
-//                waitingListPreview += " ...+" + (numberOfClientsOnWaitingList - 1);
-//            }
-//            tvWaitingListPreviewForDisplayedWeek.setText(waitingListPreview);
-//        }
+        executorService.execute(() -> {
+
+            waitingListForShownWeek = waitingListRequestDispatcher.getWaitingListForChosenWeek(CalendarUtils.selectedDate);
+            runOnUiThread(() -> {
+                if (waitingListForShownWeek.isEmpty()) {
+                    ibWaitingListForDisplayedWeek.setVisibility(View.GONE);
+                    tvWaitingListPreviewForDisplayedWeek.setVisibility(View.GONE);
+                } else {
+                    ibWaitingListForDisplayedWeek.setVisibility(View.VISIBLE);
+                    tvWaitingListPreviewForDisplayedWeek.setVisibility(View.VISIBLE);
+                    DogDto firstClientOnWaitingList = waitingListForShownWeek.get(0).getDogDto();
+                    int numberOfClientsOnWaitingList = waitingListForShownWeek.size();
+                    String waitingListPreview = firstClientOnWaitingList.clientFullName();
+                    if (numberOfClientsOnWaitingList > 1) {
+                        waitingListPreview += " ...+" + (numberOfClientsOnWaitingList - 1);
+                    }
+                    tvWaitingListPreviewForDisplayedWeek.setText(waitingListPreview);
+                }
+            });
+        });
     }
 
     private void showPopupNextToView(View view, PopupWindow popupWindow) {
@@ -518,13 +551,15 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
         validateTimeButtons(time, lockEndTime);
     }
 
-    private void lockDate(PopupWindow popupWindow, TextView etLockEndTime) {
-        LocalTime lockEndTime = LocalTime.parse(etLockEndTime.getText(), timeFormatter);
-        DogsRequestDispatcher dogsRequestDispatcher = new DogsRequestDispatcher();
-        //todo thread
-        //dogsRequestDispatcher.addUnavailablePeriod(date, time, lockEndTime);
-        popupWindow.dismiss();
-        refreshWeekView();
+    private void lockDate(LocalDate date, LocalTime startTime, PopupWindow popupWindow, TextView etLockEndTime) {
+        LocalTime endTime = LocalTime.parse(etLockEndTime.getText(), timeFormatter);
+        executorService.execute(() -> {
+            unavailablePeriodRequestDispatcher.addUnavailablePeriod(new UnavailablePeriodDto(date, startTime, endTime));
+            runOnUiThread(() -> {
+                popupWindow.dismiss();
+                refreshWeekView();
+            });
+        });
     }
 
     private PopupWindow createAddOrDeleteAppointmentPopup(View view) {
@@ -534,7 +569,7 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
         PopupWindow popupWindow = new PopupWindow(popupAppointmentOptions, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
         showPopupNextToView(view, popupWindow);
         btnAddAppointment = popupAppointmentOptions.findViewById(R.id.btnAddAppointment);
-        btnDeleteAppointment = popupAppointmentOptions.findViewById(R.id.btnDeleteAppointment);
+        btnDeleteUnavailablePeriod = popupAppointmentOptions.findViewById(R.id.btnDeleteAppointment);
         btnNavigateToClient = popupAppointmentOptions.findViewById(R.id.btnNavigateToClient);
         btnMoveAppointmentUp = popupAppointmentOptions.findViewById(R.id.btnMoveAppointmentUp);
         btnMoveAppointmentDown = popupAppointmentOptions.findViewById(R.id.btnMoveAppointmentDown);

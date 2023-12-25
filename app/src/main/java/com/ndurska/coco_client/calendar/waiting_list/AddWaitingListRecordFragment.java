@@ -1,5 +1,7 @@
 package com.ndurska.coco_client.calendar.waiting_list;
 
+import static com.ndurska.coco_client.calendar.CalendarActivity.executorService;
+
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -52,6 +54,7 @@ public class AddWaitingListRecordFragment extends DialogFragment {
 
     private List<DogDto> dogs;
     private DogsRequestDispatcher dogsRequestDispatcher;
+    private WaitingListRequestDispatcher waitingListRequestDispatcher;
     private NewWaitingListRecordListener listener;
 
     public interface NewWaitingListRecordListener {
@@ -82,10 +85,9 @@ public class AddWaitingListRecordFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dogsRequestDispatcher = new DogsRequestDispatcher();
+        waitingListRequestDispatcher = new WaitingListRequestDispatcher();
         dateStart = LocalDate.now();
         dateEnd = LocalDate.now().plusMonths(1);
-        //todo thread
-        //clients = dogsRequestDispatcher.getClients();
     }
 
     @Override
@@ -128,15 +130,18 @@ public class AddWaitingListRecordFragment extends DialogFragment {
     }
 
     private void setSearchBarListener() {
-        DogFilter filter = new DogFilter(dogs);
-        etClientSearch.addTextChangedListener(new TextWatcherAdapter() {
+        executorService.execute(() -> {
 
-            @Override
-            public void afterTextChanged(Editable editable) {
-                List<DogDto> searchResults = filter.dogsContaining(String.valueOf(editable));
-                ChooseDogAdapter adapter = new ChooseDogAdapter(searchResults, getContext());
-                rvClientList.setAdapter(adapter);
-            }
+            DogFilter filter = new DogFilter(dogsRequestDispatcher.getDogs());
+            etClientSearch.addTextChangedListener(new TextWatcherAdapter() {
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    List<DogDto> searchResults = filter.dogsContaining(String.valueOf(editable));
+                    ChooseDogAdapter adapter = new ChooseDogAdapter(searchResults, getContext());
+                    rvClientList.setAdapter(adapter);
+                }
+            });
         });
     }
 
@@ -179,29 +184,26 @@ public class AddWaitingListRecordFragment extends DialogFragment {
 
     private void setSaveButtonListener() {
         btnSave.setOnClickListener(view -> {
-                    CalendarActivity activity = (CalendarActivity) getActivity();
-                    if ((activity != null ? activity.getActiveDog() : null) != null) {
-                        if (validateDates()) {
-                            DogDto client = activity.getActiveDog();
-                            WaitingListRecord waitingListRecord = new WaitingListRecord(
-                                    client.getId(),
-                                    dateStart,
-                                    dateEnd,
-                                    etNotes.getText().toString()
-                            );
-                            //todo thread
-//                            if (dogsRequestDispatcher.addRecordToWaitingList(waitingListRecord)) {
-//                                dismiss();
-//                                listener.onNewRecordAdded();
-//                                Toast.makeText(activity, R.string.dog_added_to_waiting_list + "", Toast.LENGTH_LONG).show();
-//                            } else
-//                                Toast.makeText(activity, R.string.adding_dog_to_waiting_list_failed + "", Toast.LENGTH_LONG).show();
-                        }
-                    } else
-                        Toast.makeText(activity, R.string.choose_dog_warning + "", Toast.LENGTH_LONG).show();
-
-                }
-        );
+            CalendarActivity activity = (CalendarActivity) getActivity();
+            if ((activity != null ? activity.getActiveDog() : null) != null) {
+                if (validateDates()) {
+                    DogDto client = activity.getActiveDog();
+                    WaitingListRecordDto waitingListRecordDto = new WaitingListRecordDto(
+                            client,
+                            dateStart,
+                            dateEnd,
+                            etNotes.getText().toString()
+                    );
+                    executorService.execute(() -> {
+                        waitingListRequestDispatcher.addWaitlingListRecord(waitingListRecordDto);
+                        dismiss();
+                        listener.onNewRecordAdded();
+                        activity.runOnUiThread(()->Toast.makeText(activity, R.string.dog_added_to_waiting_list + "", Toast.LENGTH_LONG).show());
+                    });
+                } else
+                    activity.runOnUiThread(()->Toast.makeText(activity, R.string.choose_dog_warning + "", Toast.LENGTH_LONG).show());
+            }
+        });
     }
 
     private boolean validateDates() {

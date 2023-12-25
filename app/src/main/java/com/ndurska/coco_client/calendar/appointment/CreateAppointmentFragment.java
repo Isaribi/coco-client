@@ -29,7 +29,8 @@ import com.ndurska.coco_client.calendar.CalendarUtils;
 import com.ndurska.coco_client.calendar.ChooseMultipleClientsAdapter;
 import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
 import com.ndurska.coco_client.calendar.appointment.web.AppointmentsRequestDispatcher;
-import com.ndurska.coco_client.calendar.waiting_list.WaitingListRecord;
+import com.ndurska.coco_client.calendar.waiting_list.WaitingListRecordDto;
+import com.ndurska.coco_client.calendar.waiting_list.WaitingListRequestDispatcher;
 import com.ndurska.coco_client.database.DatabaseActivity;
 import com.ndurska.coco_client.database.dto.DogDto;
 import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
@@ -42,6 +43,7 @@ import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class CreateAppointmentFragment extends DialogFragment {
@@ -55,6 +57,7 @@ public class CreateAppointmentFragment extends DialogFragment {
     private LocalDate date;
     private LocalTime time;
     private List<DogDto> dogs;
+    private List<WaitingListRecordDto> waitingListForTheDay;
     private TextView etClientSearch, etAppointmentNotes;
     private TextView tvPhoneLabel1, tvPhoneLabel2;
     private CheckBox cbPhone1, cbPhone2;
@@ -66,6 +69,7 @@ public class CreateAppointmentFragment extends DialogFragment {
     private EditAppointmentListener listener;
     private DogsRequestDispatcher dogsRequestDispatcher;
     private AppointmentsRequestDispatcher appointmentsRequestDispatcher;
+    private WaitingListRequestDispatcher waitingListRequestDispatcher;
 
     public void newClientCreated(DogDto dog) {
         dogs.add(dog);
@@ -103,8 +107,12 @@ public class CreateAppointmentFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         dogsRequestDispatcher = new DogsRequestDispatcher();
         appointmentsRequestDispatcher = new AppointmentsRequestDispatcher();
+        waitingListRequestDispatcher = new WaitingListRequestDispatcher();
         executorService.execute(
-                () -> dogs = dogsRequestDispatcher.getDogs());
+                () -> {
+                    dogs = dogsRequestDispatcher.getDogs();
+                    waitingListForTheDay = waitingListRequestDispatcher.getWaitingListForChosenDay(date);
+                });
         if (getArguments() != null) {
             appointmentDto = (AppointmentDto) getArguments().getSerializable(APPOINTMENT);
             date = appointmentDto.getDate();
@@ -113,7 +121,8 @@ public class CreateAppointmentFragment extends DialogFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
                              Bundle savedInstanceState) {
         getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         return inflater.inflate(R.layout.fragment_create_appointment, container, false);
@@ -148,8 +157,10 @@ public class CreateAppointmentFragment extends DialogFragment {
                             checkIfClientIsOnWaitingList(dog);
                             sendTextWithAppointmentDate();
                             listener.refreshWeekView();
+
                             executorService.execute(() -> {
                                 ArrayList<DogDto> sameOwnerDogs = (ArrayList<DogDto>) dogsRequestDispatcher.getSameOwnerDogs(dog.getId());
+
                                 if (!sameOwnerDogs.isEmpty()) {
                                     activity.runOnUiThread(() -> {
                                         displayPromptForMoreAppointments();
@@ -157,17 +168,13 @@ public class CreateAppointmentFragment extends DialogFragment {
                                         rvClientList.setAdapter(adapter);
                                         switchThisListenerToSavingMultipleClients(adapter);
                                     });
-
-                                } else {
+                                } else
                                     dismiss();
-                                }
                             });
-                        } else {
+                        } else
                             dismiss();
-                        }
-                    } else {
+                    } else
                         Toast.makeText(getActivity(), R.string.choose_dog_warning, Toast.LENGTH_SHORT).show();
-                    }
                 }
         );
 
@@ -226,26 +233,24 @@ public class CreateAppointmentFragment extends DialogFragment {
     }
 
     private void checkIfClientIsOnWaitingList(DogDto dog) {
-        //todo thread
-        //List<WaitingListRecord> waitingListForTheDay = dogsRequestDispatcher.getWaitingListForTheDay(date);
-        List<WaitingListRecord> waitingListForTheDay = List.of();
-
-        for (WaitingListRecord record : waitingListForTheDay) {
-            if (record.getClientID() == dog.getId()) {
+        for (WaitingListRecordDto record : waitingListForTheDay) {
+            if (Objects.equals(record.getDogDto().getId(), dog.getId())) {
                 showConfirmationDialog(record, dog);
             }
         }
     }
 
-    private void showConfirmationDialog(WaitingListRecord waitingListRecord, DogDto dto) {
+    private void showConfirmationDialog(WaitingListRecordDto waitingListRecordDto, DogDto dto) {
         new AlertDialog.Builder(getContext())
                 .setTitle(R.string.delete_from_waiting_list)
                 .setMessage(dto.clientFullName() + getString(R.string.is_on_waiting_list))
 
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     //todo thread
-                    //dogsRequestDispatcher.deleteRecordFromWaitingList(waitingListRecord.getID());
-                    listener.refreshWeekView();
+                    executorService.execute(() -> {
+                        waitingListRequestDispatcher.deleteWaitingListRecord(waitingListRecordDto.getID());
+                        activity.runOnUiThread(() -> listener.refreshWeekView());
+                    });
                 })
                 .setNegativeButton(android.R.string.no, null)
                 .setIcon(android.R.drawable.ic_dialog_alert)

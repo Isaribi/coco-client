@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp">
 
+
             <EditText
                 android:id="@+id/etPhoneNumberLabel1"
                 android:layout_width="wrap_content"
@@ -205,7 +206,7 @@
             <EditText
                 android:id="@+id/etNotes"
                 android:layout_width="wrap_content"
-                android:layout_height="402dp"
+                android:layout_height="352dp"
                 android:layout_below="@+id/labelVisitDuration"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentEnd="true"
@@ -224,7 +225,7 @@
                 android:layout_below="@+id/etPhoneNumberLabel2"
                 android:layout_alignStart="@+id/etPhoneNumberLabel2"
                 android:layout_marginStart="0dp"
-                android:layout_marginTop="25dp"
+                android:layout_marginTop="35dp"
                 android:minWidth="100dp"
                 android:minHeight="45dp"
                 android:text="@string/visit_duration"
@@ -246,6 +247,24 @@
                 android:text="90"
                 android:textSize="34sp"
                 tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:layout_below="@+id/tvVisitDuration"
+                android:layout_alignStart="@+id/tvVisitDuration"
+                android:text="Button" />
+
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:layout_above="@+id/tvVisitDuration"
+                android:layout_alignStart="@+id/tvVisitDuration"
+                android:layout_marginStart="0dp"
+                android:text="Button" />
+
         </RelativeLayout>
     </ScrollView>
 </RelativeLayout>

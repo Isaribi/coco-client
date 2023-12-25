@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.ndurska.coco_client.R;
+import com.ndurska.coco_client.calendar.appointment.web.AppointmentsRequestDispatcher;
 import com.ndurska.coco_client.database.dto.DogDto;
 import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 
@@ -46,7 +47,8 @@ public class DogCardBig extends Fragment {
     private String notes;
     private String photoPath;
     private DogCardBigListener listener;
-    private DogsRequestDispatcher dbHelper;
+    private DogsRequestDispatcher dogsRequestDispatcher;
+    private AppointmentsRequestDispatcher appointmentsRequestDispatcher;
 
     private TextView tvName;
     private TextView tvAdjective;
@@ -136,7 +138,8 @@ public class DogCardBig extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = (DatabaseActivity) getActivity();
-        dbHelper = new DogsRequestDispatcher();
+        dogsRequestDispatcher = new DogsRequestDispatcher();
+        appointmentsRequestDispatcher = new AppointmentsRequestDispatcher();
         initViews(view);
         displayData();
         setListeners();
@@ -197,13 +200,15 @@ public class DogCardBig extends Fragment {
     }
 
     private void setLastPaidAmount() {
-        int amountPaid = dbHelper.getLastPaidAmount(ID);
-        tvLastPayment.setText(String.valueOf(amountPaid));
+        executorService.execute(() -> {
+            int amountPaid = appointmentsRequestDispatcher.getLastPaidAmount(ID);
+            activity.runOnUiThread(() -> tvLastPayment.setText(String.valueOf(amountPaid)));
+        });
     }
 
     private void setSameOwnerDogs() {
         executorService.execute(() -> {
-            List<DogDto> sameOwnerDogList = dbHelper.getSameOwnerDogs(ID);
+            List<DogDto> sameOwnerDogList = dogsRequestDispatcher.getSameOwnerDogs(ID);
             if (sameOwnerDogList.size() > 0) {
                 TextView tv = new TextView(getActivity());
                 tv.setText(R.string.from);

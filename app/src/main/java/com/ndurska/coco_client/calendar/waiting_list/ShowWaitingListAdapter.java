@@ -1,5 +1,7 @@
 package com.ndurska.coco_client.calendar.waiting_list;
 
+import static com.ndurska.coco_client.calendar.CalendarActivity.executorService;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,19 +15,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ndurska.coco_client.R;
 import com.ndurska.coco_client.calendar.CalendarActivity;
-import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
+import com.ndurska.coco_client.calendar.CalendarUtils;
+import com.ndurska.coco_client.database.dto.DogDto;
 
 import java.util.List;
 
 public class ShowWaitingListAdapter extends RecyclerView.Adapter<WaitingListRecordVH> {
-    List<WaitingListRecord> waitingList;
-    CalendarActivity context;
-    DogsRequestDispatcher dogsRequestDispatcher;
 
-    public ShowWaitingListAdapter(Context context, List<WaitingListRecord> waitingList) {
+    List<WaitingListRecordDto> waitingList;
+    CalendarActivity context;
+    WaitingListRequestDispatcher waitingListRequestDispatcher;
+
+    public ShowWaitingListAdapter(Context context, List<WaitingListRecordDto> waitingList) {
         this.waitingList = waitingList;
         this.context = (CalendarActivity) context;
-        dogsRequestDispatcher = new DogsRequestDispatcher();
+        waitingListRequestDispatcher = new WaitingListRequestDispatcher();
     }
 
     @NonNull
@@ -44,20 +48,22 @@ public class ShowWaitingListAdapter extends RecyclerView.Adapter<WaitingListReco
     @Override
     public void onBindViewHolder(@NonNull WaitingListRecordVH holder, int position) {
         try {
-            WaitingListRecord waitingListRecord = waitingList.get(position);
+            WaitingListRecordDto waitingListRecordDto = waitingList.get(position);
             //todo fix this with entities
             //todo thread
-//            DogDto client = dogsRequestDispatcher.getDog(waitingListRecord.getClientID());
-//            holder.tvClientName.setText(client.getFullName());
-//            holder.tvDateStart.setText(CalendarUtils.dayMonthFromDate(waitingListRecord.getDateStart()));
-//            holder.tvDateEnd.setText(CalendarUtils.dayMonthFromDate(waitingListRecord.getDateEnd()));
-//            holder.tvNotes.setText(waitingListRecord.getNotes());
-//            holder.btnDelete.setOnClickListener(view -> {
-//                removeAt(position);
-//                dogsRequestDispatcher.deleteRecordFromWaitingList(waitingListRecord.getID());
-//                context.refreshWeekView();
-//            });
-
+            DogDto client = waitingListRecordDto.getDogDto();
+            holder.tvClientName.setText(client.clientFullName());
+            holder.tvDateStart.setText(CalendarUtils.dayMonthFromDate(waitingListRecordDto.getDateStart()));
+            holder.tvDateEnd.setText(CalendarUtils.dayMonthFromDate(waitingListRecordDto.getDateEnd()));
+            holder.tvNotes.setText(waitingListRecordDto.getNotes());
+            holder.btnDelete.setOnClickListener(view ->
+                    executorService.execute(() -> {
+                        waitingListRequestDispatcher.deleteWaitingListRecord(waitingListRecordDto.getID());
+                        context.runOnUiThread(() -> {
+                            removeAt(position);
+                            context.refreshWeekView();
+                        });
+                    }));
         } catch (Exception e) {
             Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show();
         }

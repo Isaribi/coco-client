@@ -111,4 +111,18 @@ public class AppointmentsRequestDispatcher extends AbstractRequestDispatcher {
 
         return appointmentJsonConverter.convertToList(jsonResponse);
     }
+    public int getLastPaidAmount(int dogId) {
+        HttpUrl httpUrl = HttpUrl
+                .parse(url+"/last-paid")
+                .newBuilder()
+                .addQueryParameter("dogId", String.valueOf(dogId))
+                .build();
+        Request request = new Request.Builder()
+                .url(httpUrl)
+                .build();
+
+        String jsonResponse = callRequestForBody(request);
+
+        return Integer.parseInt(jsonResponse);
+    }
 }

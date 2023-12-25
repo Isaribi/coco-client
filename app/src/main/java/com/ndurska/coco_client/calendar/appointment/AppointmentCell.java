@@ -1,7 +1,7 @@
 package com.ndurska.coco_client.calendar.appointment;
 
 import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
-import com.ndurska.coco_client.calendar.unavailable_period.UnavailablePeriod;
+import com.ndurska.coco_client.calendar.unavailable_period.UnavailablePeriodDto;
 import com.ndurska.coco_client.database.dto.DogDto;
 
 import java.time.LocalDate;
@@ -27,7 +27,7 @@ public class AppointmentCell {
     private final LocalDate date;
     private static ArrayList<AppointmentDto> appointmentDtos;
     private static ArrayList<DogDto> dogs;
-    private static ArrayList<UnavailablePeriod> unavailablePeriods;
+    private static ArrayList<UnavailablePeriodDto> unavailablePeriodDtos;
 
     public AppointmentCell(LocalDate date, LocalTime time) {
         this.time = time;
@@ -39,7 +39,7 @@ public class AppointmentCell {
 
     private void setThisDayAppointments() {
         int timeInMinutes = time.getHour() * 60 + time.getMinute();
-        //unavailable = checkIfUnavailable(timeInMinutes);
+        unavailable = checkIfUnavailable(timeInMinutes);
         for (AppointmentDto appointmentDto : appointmentDtos) {
             checkIfFirstCellOfAppointment(appointmentDto);
             checkIfLastOrMiddleCellOfAppointment(appointmentDto, timeInMinutes);
@@ -76,9 +76,9 @@ public class AppointmentCell {
 
 
     private boolean checkIfUnavailable(int timeInMinutes) {
-        for (UnavailablePeriod unavailablePeriod : unavailablePeriods) {
-            int upStartInMinutes = unavailablePeriod.getStart().getHour() * 60 + unavailablePeriod.getStart().getMinute();
-            int upEndInMinutes = unavailablePeriod.getEnd().getHour() * 60 + unavailablePeriod.getEnd().getMinute();
+        for (UnavailablePeriodDto unavailablePeriodDto : unavailablePeriodDtos) {
+            int upStartInMinutes = unavailablePeriodDto.getTimeStart().getHour() * 60 + unavailablePeriodDto.getTimeStart().getMinute();
+            int upEndInMinutes = unavailablePeriodDto.getTimeEnd().getHour() * 60 + unavailablePeriodDto.getTimeEnd().getMinute();
             if (timeInMinutes >= upStartInMinutes && timeInMinutes < upEndInMinutes)
                 return true;
         }
@@ -103,8 +103,8 @@ public class AppointmentCell {
         AppointmentCell.dogs = dogs;
     }
 
-    public static void setUnavailablePeriods(ArrayList<UnavailablePeriod> unavailablePeriods) {
-        AppointmentCell.unavailablePeriods = unavailablePeriods;
+    public static void setUnavailablePeriods(ArrayList<UnavailablePeriodDto> unavailablePeriodDtos) {
+        AppointmentCell.unavailablePeriodDtos = unavailablePeriodDtos;
     }
 
     public AppointmentHeader getAppointmentHeader(int i) {

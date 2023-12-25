@@ -1,27 +1,36 @@
 package com.ndurska.coco_client.calendar.waiting_list;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.ndurska.coco_client.database.dto.DogDto;
+
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class WaitingListRecord {
+public class WaitingListRecordDto implements Serializable {
     private int ID;
-    private int clientID;
+    @JsonAlias("dogTwoContactsDTO")
+    private DogDto dogDto;
     private LocalDate dateStart;
     private LocalDate dateEnd;
     private String notes;
 
-    public WaitingListRecord(int ID, int clientID, LocalDate dateStart, LocalDate dateEnd, String notes) {
+    public WaitingListRecordDto(int ID, DogDto dogDto, LocalDate dateStart, LocalDate dateEnd, String notes) {
         this.ID = ID;
-        this.clientID = clientID;
+        this.dogDto = dogDto;
         this.dateStart = dateStart;
         this.dateEnd = dateEnd;
         this.notes = notes;
     }
 
-    public WaitingListRecord(int clientID, LocalDate dateStart, LocalDate dateEnd, String notes) {
-        this.clientID = clientID;
+    public WaitingListRecordDto(DogDto dogDto, LocalDate dateStart, LocalDate dateEnd, String notes) {
+        this.dogDto = dogDto;
         this.dateStart = dateStart;
         this.dateEnd = dateEnd;
         this.notes = notes;
+    }
+
+    public WaitingListRecordDto(){
+
     }
 
     public int getID() {
@@ -32,12 +41,8 @@ public class WaitingListRecord {
         this.ID = ID;
     }
 
-    public int getClientID() {
-        return clientID;
-    }
-
-    public void setClientID(int clientID) {
-        this.clientID = clientID;
+    public DogDto getDogDto() {
+        return dogDto;
     }
 
     public LocalDate getDateStart() {

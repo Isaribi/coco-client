@@ -20,9 +20,6 @@ public class DogsRequestDispatcher extends AbstractRequestDispatcher {
         jsonConverter = new JsonConverter<>(DogDto.class);
     }
 
-    public int getLastPaidAmount(int id) {
-        return 0;
-    }
 
     public List<DogDto> getSameOwnerDogs(int id) {
 

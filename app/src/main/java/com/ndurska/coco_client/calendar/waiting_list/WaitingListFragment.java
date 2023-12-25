@@ -1,5 +1,7 @@
 package com.ndurska.coco_client.calendar.waiting_list;
 
+import static com.ndurska.coco_client.calendar.CalendarActivity.executorService;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,8 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ndurska.coco_client.R;
 import com.ndurska.coco_client.calendar.CalendarActivity;
-import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,12 +26,14 @@ public class WaitingListFragment extends DialogFragment implements AddWaitingLis
     private Button btnAddNew;
     private ShowWaitingListAdapter adapter;
     private RecyclerView rvWaitingList;
-    private List<WaitingListRecord> waitingList;
-    private DogsRequestDispatcher dogsRequestDispatcher;
+    private List<WaitingListRecordDto> waitingList;
+    private WaitingListRequestDispatcher waitingListRequestDispatcher;
     private CalendarActivity context;
 
 
-    public static WaitingListFragment newInstance() {
+    public static WaitingListFragment newInstance(List<WaitingListRecordDto> waitingList) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("waitingList", (Serializable) waitingList);
         return new WaitingListFragment();
     }
 
@@ -44,9 +48,10 @@ public class WaitingListFragment extends DialogFragment implements AddWaitingLis
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        dogsRequestDispatcher = new DogsRequestDispatcher();
-//todo thread
-//        waitingList = dogsRequestDispatcher.getWaitingList();
+        waitingListRequestDispatcher = new WaitingListRequestDispatcher();
+        if (getArguments() != null) {
+            waitingList = (List<WaitingListRecordDto>) getArguments().getSerializable("waitingList");
+        }
     }
 
     @Override
@@ -65,16 +70,15 @@ public class WaitingListFragment extends DialogFragment implements AddWaitingLis
             fm.executePendingTransactions();
             Objects.requireNonNull(addWaitingListRecordFragment.getDialog())
                     .setOnDismissListener(dialogInterface -> setAdapter());
-
         });
     }
 
     private void setAdapter() {
-        //todo thread
-//        waitingList = dogsRequestDispatcher.getWaitingList();
-        adapter = new ShowWaitingListAdapter(getContext(), waitingList);
-        rvWaitingList.setAdapter(adapter);
-
+        executorService.execute(() -> {
+            waitingList = waitingListRequestDispatcher.getWaitingList();
+            adapter = new ShowWaitingListAdapter(getContext(), waitingList);
+            getActivity().runOnUiThread(() -> rvWaitingList.setAdapter(adapter));
+        });
     }
 
     @Override
