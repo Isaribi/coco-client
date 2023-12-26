@@ -4,6 +4,7 @@ import static com.ndurska.coco_client.calendar.CalendarActivity.executorService;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -32,6 +33,9 @@ import com.ndurska.coco_client.R;
 import com.ndurska.coco_client.database.dto.DogDto;
 import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -66,7 +70,7 @@ public class DogCardEdit extends Fragment {
     private String phoneNumberLabel2;
     private int expectedVisitDuration;
     private String notes;
-    private String photoUUID;
+    private byte[] photoUUID;
     DogsRequestDispatcher dogsRequestDispatcher;
     DatabaseActivity activity;
 
@@ -95,16 +99,42 @@ public class DogCardEdit extends Fragment {
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         Uri imageUri = result.getData().getData();
                         if (imageUri != null && !imageUri.toString().contains("2131165280")) {
-                            photoUUID = imageUri.toString();
-                            Glide.with(requireActivity())
-                                    .load(imageUri)
-                                    .into(ivPhoto);
-                            btnDeletePicture.setVisibility(View.VISIBLE);
+                            // Convert the image to a byte array
+                            byte[] imageByteArray = getImageByteArray(imageUri);
+
+                            // Use the byte array as needed
+                            if (imageByteArray != null) {
+                                photoUUID = imageByteArray;
+                                Glide.with(requireActivity())
+                                        .load(imageUri)
+                                        .into(ivPhoto);
+                                btnDeletePicture.setVisibility(View.VISIBLE);
+                            }
                         }
                     }
                 }
             }
     );
+
+    private byte[] getImageByteArray(Uri imageUri) {
+        try {
+            ContentResolver contentResolver = getActivity().getContentResolver();
+            InputStream inputStream = contentResolver.openInputStream(imageUri);
+
+            if (inputStream != null) {
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    byteArrayOutputStream.write(buffer, 0, bytesRead);
+                }
+                return byteArrayOutputStream.toByteArray();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public interface DogCardEditListener {
         void onBtnSaveClicked(boolean isNewDog);
@@ -143,7 +173,7 @@ public class DogCardEdit extends Fragment {
         args.putInt(ARG_LAST_PAYMENT, dog.getLastPaidAmount());
         args.putInt(ARG_EXPECTED_VISIT_DURATION, dog.getExpectedAppointmentDuration());
         args.putString(ARG_NOTES, dog.getAdditionalInfo());
-        args.putString(ARG_PHOTO_PATH, dog.getPhotoUUID());
+        args.putByteArray(ARG_PHOTO_PATH, dog.getPhoto());
         fragment.setArguments(args);
         return fragment;
     }
@@ -176,9 +206,8 @@ public class DogCardEdit extends Fragment {
             phoneNumberLabel1 = getArguments().getString(ARG_PHONE_NUMBER_lABEL_1);
             phoneNumberLabel2 = getArguments().getString(ARG_PHONE_NUMBER_LABEL_2);
             expectedVisitDuration = getArguments().getInt(ARG_EXPECTED_VISIT_DURATION);
-            photoUUID = getArguments().getString(ARG_PHOTO_PATH);
+            photoUUID = getArguments().getByteArray(ARG_PHOTO_PATH);
             notes = getArguments().getString(ARG_NOTES);
-
         }
     }
 
@@ -217,7 +246,7 @@ public class DogCardEdit extends Fragment {
                 ivPhoto.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.default_picture));
                 btnDeletePicture.setVisibility(View.GONE);
             } else {
-                Glide.with(requireActivity()).load(Uri.parse(photoUUID)).into(ivPhoto);
+                Glide.with(requireActivity()).load(photoUUID).into(ivPhoto);
             }
         } catch (IllegalStateException e) {
             Toast.makeText(getActivity(), R.string.no_dog_exception + "", Toast.LENGTH_SHORT).show();
@@ -355,7 +384,7 @@ public class DogCardEdit extends Fragment {
     private void saveDogEdits() {
         try {
             getDogInfoFromViews();
-            dog.setPhotoUUID(photoUUID);
+            dog.setPhoto(photoUUID);
             DogDto editedDog = dogsRequestDispatcher.editDog(dog);
             activity.setActiveDog(editedDog);
             activity.runOnUiThread(() -> Toast.makeText(getActivity(), R.string.dog_changes_saved, Toast.LENGTH_SHORT).show());
@@ -373,7 +402,8 @@ public class DogCardEdit extends Fragment {
         dog.setPhoneNumber2(etPhoneNumber2.getText().toString());
         dog.setPhoneNumberLabel1(etPhoneNumberLabel1.getText().toString());
         dog.setPhoneNumberLabel2(etPhoneNumberLabel2.getText().toString());
-        ivPhoto.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.default_picture));
+        dog.setPhoto(photoUUID);
+        getActivity().runOnUiThread(() -> ivPhoto.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.default_picture)));
         if (etExpectedVisitDuration.getText().length() == 0)
             dog.setExpectedAppointmentDuration(90);
         else

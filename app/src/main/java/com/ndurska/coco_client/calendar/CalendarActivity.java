@@ -33,6 +33,7 @@ import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
 import com.ndurska.coco_client.calendar.appointment.web.AppointmentsRequestDispatcher;
 import com.ndurska.coco_client.calendar.monthlysummary.MonthSummaryFragment;
 import com.ndurska.coco_client.calendar.monthlysummary.MonthlySummaryRequestDispatcher;
+import com.ndurska.coco_client.calendar.reminders.RemindersActivity;
 import com.ndurska.coco_client.calendar.unavailable_period.UnavailablePeriodDto;
 import com.ndurska.coco_client.calendar.unavailable_period.UnavailablePeriodRequestDispatcher;
 import com.ndurska.coco_client.calendar.waiting_list.AddWaitingListRecordFragment;
@@ -135,11 +136,11 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
             switchActivityIntent = new Intent(this, DailySummaryActivity.class);
             startActivity(switchActivityIntent);
             return true;
-//        } else if (item.getItemId() == R.id.send_text_reminders) {
-//            CalendarUtils.selectedDate = LocalDate.now();
-//            switchActivityIntent = new Intent(this, RemindersActivity.class);
-//            startActivity(switchActivityIntent);
-//            return true;
+        } else if (item.getItemId() == R.id.send_text_reminders) {
+            CalendarUtils.selectedDate = LocalDate.now();
+            switchActivityIntent = new Intent(this, RemindersActivity.class);
+            startActivity(switchActivityIntent);
+            return true;
         } else if (item.getItemId() == R.id.waiting_list) {
             FragmentManager fm = getSupportFragmentManager();
             executorService.execute(() -> {

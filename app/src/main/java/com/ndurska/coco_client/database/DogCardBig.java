@@ -4,7 +4,6 @@ import static com.ndurska.coco_client.calendar.CalendarActivity.executorService;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,7 +44,7 @@ public class DogCardBig extends Fragment {
     private String phoneNumberLabel2;
     private int expectedVisitDuration;
     private String notes;
-    private String photoPath;
+    private byte[] photo;
     private DogCardBigListener listener;
     private DogsRequestDispatcher dogsRequestDispatcher;
     private AppointmentsRequestDispatcher appointmentsRequestDispatcher;
@@ -122,7 +121,7 @@ public class DogCardBig extends Fragment {
             phoneNumberLabel2 = dog.getPhoneNumberLabel2();
             expectedVisitDuration = dog.getExpectedAppointmentDuration();
             notes = dog.getAdditionalInfo();
-            photoPath = dog.getPhotoUUID();
+            photo = dog.getPhoto();
         }
     }
 
@@ -192,10 +191,10 @@ public class DogCardBig extends Fragment {
     }
 
     private void setPhoto() {
-        if (photoPath == null)
+        if (photo == null)
             ivPhoto.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.default_picture));
         else {
-            Glide.with(requireActivity()).load(Uri.parse(photoPath)).into(ivPhoto);
+            Glide.with(requireActivity()).load(photo).into(ivPhoto);
         }
     }
 

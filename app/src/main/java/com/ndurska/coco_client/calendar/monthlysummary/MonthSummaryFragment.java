@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-
 import com.ndurska.coco_client.R;
 import com.ndurska.coco_client.calendar.CalendarUtils;
 
@@ -33,8 +32,8 @@ public class MonthSummaryFragment extends DialogFragment {
             tvPredictedAmount, tvSum;
     private Button btnPreviousMonth, btnNextMonth;
 
-
     private LocalDate date;
+    private MonthlySummaryRequestDispatcher monthlySummaryRequestDispatcher;
 
     public MonthSummaryFragment() {
         // Required empty public constructor
@@ -44,7 +43,7 @@ public class MonthSummaryFragment extends DialogFragment {
     public static MonthSummaryFragment newInstance(MonthSummaryDTO monthlySummary) {
         MonthSummaryFragment fragment = new MonthSummaryFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_MONTH_SUMMARY_DTO, (Serializable) monthlySummary);
+        args.putSerializable(ARG_MONTH_SUMMARY_DTO, monthlySummary);
         fragment.setArguments(args);
         return fragment;
     }
@@ -55,7 +54,8 @@ public class MonthSummaryFragment extends DialogFragment {
         if (getArguments() != null) {
             monthSummaryDTO = (MonthSummaryDTO) getArguments().getSerializable(ARG_MONTH_SUMMARY_DTO);
         }
-
+        date = LocalDate.now();
+        monthlySummaryRequestDispatcher = new MonthlySummaryRequestDispatcher();
     }
 
     @Override
@@ -63,7 +63,6 @@ public class MonthSummaryFragment extends DialogFragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_finanses, container, false);
-
     }
 
     @Override
@@ -78,17 +77,16 @@ public class MonthSummaryFragment extends DialogFragment {
         btnPreviousMonth.setOnClickListener(view -> {
                     date = date.minusMonths(1);
                     executorService.execute(() -> {
-                       // monthSummaryDTO = monthSummaryService.getSummaryForMonth(date);
-                        displayData();
+                        monthSummaryDTO = monthlySummaryRequestDispatcher.getMonthlySummary(date);
+                        getActivity().runOnUiThread(this::displayData);
                     });
                 }
         );
         btnNextMonth.setOnClickListener(view -> {
                     date = date.plusMonths(1);
                     executorService.execute(() -> {
-                        //todo add this
-                       // monthSummaryDTO = monthSummaryService.getSummaryForMonth(date);
-                        displayData();
+                        monthSummaryDTO = monthlySummaryRequestDispatcher.getMonthlySummary(date);
+                        getActivity().runOnUiThread(this::displayData);
                     });
                 }
         );

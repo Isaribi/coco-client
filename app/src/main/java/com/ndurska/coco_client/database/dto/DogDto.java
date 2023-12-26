@@ -14,12 +14,12 @@ public class DogDto implements Serializable {
     int expectedAppointmentDuration;
     int lastPaidAmount;
     String additionalInfo;
-    String photoUUID;
+    byte[] photo;
 
     public DogDto() {
     }
 
-    public DogDto(Integer id, String name, String pseudonym, String breed, String phoneNumber1, String phoneNumber2, String phoneNumberLabel1, String phoneNumberLabel2, int expectedAppointmentDuration, int lastPaidAmount, String additionalInfo, String photoUUID) {
+    public DogDto(Integer id, String name, String pseudonym, String breed, String phoneNumber1, String phoneNumber2, String phoneNumberLabel1, String phoneNumberLabel2, int expectedAppointmentDuration, int lastPaidAmount, String additionalInfo, byte[] photo) {
         this.id = id;
         this.name = name;
         this.pseudonym = pseudonym;
@@ -31,7 +31,7 @@ public class DogDto implements Serializable {
         this.expectedAppointmentDuration = expectedAppointmentDuration;
         this.lastPaidAmount = lastPaidAmount;
         this.additionalInfo = additionalInfo;
-        this.photoUUID = photoUUID;
+        this.photo = photo;
     }
 
     public String toStringShort() {
@@ -114,10 +114,6 @@ public class DogDto implements Serializable {
         return lastPaidAmount;
     }
 
-    public void setLastPaidAmount(int lastPaidAmount) {
-        this.lastPaidAmount = lastPaidAmount;
-    }
-
     public String getAdditionalInfo() {
         return additionalInfo;
     }
@@ -126,12 +122,12 @@ public class DogDto implements Serializable {
         this.additionalInfo = additionalInfo;
     }
 
-    public String getPhotoUUID() {
-        return photoUUID;
+    public byte[] getPhoto() {
+        return photo;
     }
 
-    public void setPhotoUUID(String photoUUID) {
-        this.photoUUID = photoUUID;
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
     }
 
     public String clientFullName() {

@@ -2,7 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!-- permissions for INTERNET -->
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.SEND_SMS" />
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -36,26 +41,10 @@
             android:name=".summary.DailySummaryActivity"
             android:exported="false"
             android:theme="@style/Theme.CocoClient.NoActionBar"/>
-<!--        <activity-->
-<!--            android:name=".database.DatabaseActivity"-->
-<!--            android:exported="true"-->
-<!--            android:screenOrientation="portrait"-->
-<!--            android:theme="@style/Theme.CocoClient.NoActionBar">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
-<!--        <service-->
-<!--            android:description="@string/servicedesc"-->
-<!--            android:name=".shared.DogIntentService">-->
-<!--        </service>-->
-<!--        <receiver android:name=".database.DatabaseActivity$DogBroadcastReceiver" android:exported="false">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="FILTER_ACTION" />-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
+        <activity
+            android:name=".calendar.reminders.RemindersActivity"
+            android:exported="false"
+            android:theme="@style/Theme.CocoClient.NoActionBar"/>
     </application>
 
 </manifest>
