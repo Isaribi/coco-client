@@ -55,7 +55,7 @@ public class AppointmentSummaryAdapter extends RecyclerView.Adapter<AppointmentS
             holder.linkListener(listener);
             holder.tvDogName.setText(dogName);
             holder.tvTime.setText(appointment.getTime().toString());
-            holder.cbAbsent.setChecked(!appointment.getAttendance());
+            holder.cbAbsent.setChecked(appointment.getAbsence());
             if (appointment.getAmountPaid() != 0)
                 holder.etPayment.setText(String.valueOf(appointment.getAmountPaid()));
 
@@ -109,13 +109,13 @@ class AppointmentSummaryVH extends RecyclerView.ViewHolder {
     private void setListeners() {
         cbAbsent.setOnCheckedChangeListener((compoundButton, b) -> {
             if (compoundButton.isChecked()) {
-                appointment.setAttendance(false);
+                appointment.setAbsence(true);
                 appointment.setAmountPaid(0);
                 etPayment.setText("");
                 etPayment.setEnabled(false);
                 listener.updateTotal(adapter.getAppointmentsTotal());
             } else {
-                appointment.setAttendance(true);
+                appointment.setAbsence(false);
                 etPayment.setEnabled(true);
             }
         });

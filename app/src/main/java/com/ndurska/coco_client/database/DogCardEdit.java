@@ -101,10 +101,9 @@ public class DogCardEdit extends Fragment {
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         Uri imageUri = result.getData().getData();
                         if (imageUri != null && !imageUri.toString().contains("2131165280")) {
-                            // Convert the image to a byte array
+
                             byte[] imageByteArray = getImageByteArray(imageUri);
 
-                            // Use the byte array as needed
                             if (imageByteArray != null) {
                                 photoUUID = imageByteArray;
                                 Glide.with(requireActivity())

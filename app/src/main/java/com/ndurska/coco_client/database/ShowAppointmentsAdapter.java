@@ -45,7 +45,7 @@ public class ShowAppointmentsAdapter extends RecyclerView.Adapter<AppointmentVH>
             AppointmentDto appointment = appointments.get(position);
             holder.setAppointment(appointment);
             holder.tvTime.setText(appointment.getTime().toString());
-            holder.cbAbsent.setChecked(!appointment.getAttendance());
+            holder.cbAbsent.setChecked(appointment.getAbsence());
             holder.tvDate.setText(appointment.getDate().toString());
             holder.tvNote.setText(appointment.getNotes());
             if (appointment.getAmountPaid() != 0)
