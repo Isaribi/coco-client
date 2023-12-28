@@ -45,7 +45,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class DogCardEdit extends Fragment {
 
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_ID = "ID";
     private static final String ARG_NAME = "name";
     private static final String ARG_PSEUDONYM = "pseudonym";
@@ -71,6 +70,7 @@ public class DogCardEdit extends Fragment {
     private int expectedVisitDuration;
     private String notes;
     private byte[] photoUUID;
+
     DogsRequestDispatcher dogsRequestDispatcher;
     DatabaseActivity activity;
 
@@ -88,6 +88,8 @@ public class DogCardEdit extends Fragment {
     Button btnSaveChanges;
     Button btnDeleteDog;
     Button btnDeletePicture;
+    Button btnVisitDurationUp;
+    Button btnVisitDurationDown;
 
     private DogCardEditListener listener;
 
@@ -270,6 +272,8 @@ public class DogCardEdit extends Fragment {
         btnDeleteDog = view.findViewById(R.id.btnDeleteDog);
         ivPhoto = view.findViewById(R.id.ivProfilePicture);
         btnDeletePicture = view.findViewById(R.id.btnDeletePicture);
+        btnVisitDurationUp = view.findViewById(R.id.btnVisitDurationUp);
+        btnVisitDurationDown = view.findViewById(R.id.btnVisitDurationDown);
     }
 
     private boolean dogInfoIsValid() {
@@ -305,10 +309,23 @@ public class DogCardEdit extends Fragment {
 
     private void setListeners() {
         btnSaveChanges.setOnClickListener(view13 -> saveDog());
-
         btnDeleteDog.setOnClickListener(view1 -> deleteDog());
-
         ivPhoto.setOnClickListener(view1 -> choosePhoto());
+
+        btnVisitDurationUp.setOnClickListener(view -> {
+            int duration = Integer.parseInt(etExpectedVisitDuration.getText().toString());
+            duration += 30;
+            etExpectedVisitDuration.setText(String.valueOf(duration));
+        });
+
+        btnVisitDurationDown.setOnClickListener(view -> {
+            int duration = Integer.parseInt(etExpectedVisitDuration.getText().toString());
+
+            if (duration >= 30) {
+                duration -= 30;
+                etExpectedVisitDuration.setText(String.valueOf(duration));
+            }
+        });
 
         btnDeletePicture.setOnClickListener(view12 -> new AlertDialog.Builder(getContext())
                 .setTitle(R.string.delete_picture)

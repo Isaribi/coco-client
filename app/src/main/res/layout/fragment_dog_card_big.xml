@@ -177,7 +177,7 @@
         android:layout_alignTop="@+id/labelVisitDuration"
         android:layout_marginStart="5dp"
         android:layout_toEndOf="@+id/labelVisitDuration"
-        android:minWidth="100dp"
+        android:minWidth="70dp"
         android:minHeight="48dp"
         android:textColor="@color/color_font_color"
         android:textSize="34sp"
@@ -244,6 +244,18 @@
         android:layout_marginBottom="10dp"
         android:backgroundTint="@color/color_coco_2"
         android:text="@string/visits" />
+
+    <TextView
+        android:id="@+id/tvMinutesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/tvVisitDuration"
+        android:layout_toEndOf="@+id/tvVisitDuration"
+        android:minWidth="80dp"
+        android:minHeight="40dp"
+        android:text="minut"
+        android:textColor="@color/color_font_color"
+        android:textSize="30sp" />
 
 
 </RelativeLayout>

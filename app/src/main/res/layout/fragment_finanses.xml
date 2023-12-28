@@ -22,7 +22,6 @@
             android:id="@+id/tvDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
             android:gravity="center"
             android:minHeight="40dp"
             android:text="MONTH"
@@ -52,12 +51,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tvDate"
             app:layout_constraintTop_toTopOf="parent" />
-
-
-
-
-
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -98,22 +91,23 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/number_of_dogs" />
+                android:text="@string/number_of_dogs"
+                android:textStyle="bold"/>
 
             <TextView
+                android:layout_marginLeft="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/absents" />
 
 
             <TextView
+                android:layout_marginLeft="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/first_timers" />
 
-
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -124,13 +118,14 @@
             <TextView
                 android:id="@+id/tvNumberOfAppointments"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                />
 
             <TextView
                 android:id="@+id/tvNumberOfAbsentClients"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-
 
             <TextView
                 android:id="@+id/tvNumberOfFirstTimeClients"
@@ -189,9 +184,7 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -222,6 +215,5 @@
         </LinearLayout>
 
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

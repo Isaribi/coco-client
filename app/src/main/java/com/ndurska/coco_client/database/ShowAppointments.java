@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,14 +49,7 @@ public class ShowAppointments extends DialogFragment {
         if (getArguments() != null) {
             appointmentsRequestDispatcher = new AppointmentsRequestDispatcher();
             dogDto = (DogDto) getArguments().getSerializable("dogDto");
-            //   appointments = appointmentsRequestDispatcher.getAppointmentsForDog(dogDto.getId());
-
-            //todo execute
-//            DataBaseHelper dbHelper = new DataBaseHelper(getActivity());
-//            appointments = (ArrayList<Appointment>) dbHelper.getAppointments(dogDto.getClientID());
-
         }
-
     }
 
     @Override
@@ -68,12 +60,8 @@ public class ShowAppointments extends DialogFragment {
         executorService.execute(() -> {
             appointments = appointmentsRequestDispatcher.getAppointmentsForDog(dogDto.getId());
             adapter = new ShowAppointmentsAdapter(getContext(), appointments);
-            try {
-                rvAppointments.setAdapter(adapter);
-                tvClientName.setText(dogDto.getName());
-            } catch (Exception e) {
-                Toast.makeText(getContext(), e.toString(), Toast.LENGTH_LONG).show();
-            }
+            getActivity().runOnUiThread(() -> rvAppointments.setAdapter(adapter));
+            tvClientName.setText(dogDto.getName());
             super.onViewCreated(view, savedInstanceState);
         });
     }

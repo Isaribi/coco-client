@@ -226,7 +226,7 @@
                 android:layout_alignStart="@+id/etPhoneNumberLabel2"
                 android:layout_marginStart="0dp"
                 android:layout_marginTop="35dp"
-                android:minWidth="100dp"
+                android:minWidth="80dp"
                 android:minHeight="45dp"
                 android:text="@string/visit_duration"
                 android:textColor="@color/color_font_color"
@@ -242,28 +242,42 @@
                 android:layout_toEndOf="@+id/labelVisitDuration"
                 android:background="@null"
                 android:inputType="number"
-                android:minWidth="100dp"
+                android:minWidth="70dp"
                 android:minHeight="45dp"
                 android:text="90"
                 android:textSize="34sp"
                 tools:ignore="HardcodedText" />
 
             <Button
-                android:id="@+id/button2"
-                android:layout_width="wrap_content"
+                android:id="@+id/btnVisitDurationDown"
+                android:layout_width="45dp"
                 android:layout_height="35dp"
                 android:layout_below="@+id/tvVisitDuration"
                 android:layout_alignStart="@+id/tvVisitDuration"
-                android:text="Button" />
+
+                app:icon="@android:drawable/arrow_down_float" />
 
             <Button
-                android:id="@+id/button3"
-                android:layout_width="wrap_content"
+                android:id="@+id/btnVisitDurationUp"
+                android:layout_width="45dp"
                 android:layout_height="35dp"
                 android:layout_above="@+id/tvVisitDuration"
                 android:layout_alignStart="@+id/tvVisitDuration"
                 android:layout_marginStart="0dp"
-                android:text="Button" />
+                app:icon="@android:drawable/arrow_up_float"
+                />
+
+            <TextView
+                android:id="@+id/tvMinutesText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/tvVisitDuration"
+                android:layout_toEndOf="@+id/tvVisitDuration"
+                android:minWidth="80dp"
+                android:minHeight="40dp"
+                android:text="minut"
+                android:textColor="@color/color_font_color"
+                android:textSize="30sp" />
 
         </RelativeLayout>
     </ScrollView>
