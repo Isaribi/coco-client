@@ -1,5 +1,7 @@
 package com.ndurska.coco_client.calendar.unavailable_period;
 
+import android.content.Context;
+
 import com.ndurska.coco_client.shared.AbstractRequestDispatcher;
 import com.ndurska.coco_client.shared.JsonConverter;
 
@@ -15,13 +17,14 @@ public class UnavailablePeriodRequestDispatcher extends AbstractRequestDispatche
     private final String url = "http://10.0.2.2:8080/api/unavailable-periods";
     private final JsonConverter<UnavailablePeriodDto> appointmentJsonConverter;
 
-    public UnavailablePeriodRequestDispatcher() {
+    public UnavailablePeriodRequestDispatcher(Context context) {
+        super(context);
         appointmentJsonConverter = new JsonConverter<>(UnavailablePeriodDto.class);
     }
 
     public UnavailablePeriodDto addUnavailablePeriod(UnavailablePeriodDto appointmentDto) {
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .post(Objects.requireNonNull(appointmentJsonConverter.createJsonRequestBody(appointmentDto)))
                 .url(url)
                 .build();
@@ -39,7 +42,7 @@ public class UnavailablePeriodRequestDispatcher extends AbstractRequestDispatche
                 .addQueryParameter("date", String.valueOf(date))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .get()
                 .url(httpUrl)
                 .build();
@@ -57,7 +60,7 @@ public class UnavailablePeriodRequestDispatcher extends AbstractRequestDispatche
                 .addQueryParameter("date", String.valueOf(date))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .delete()
                 .url(httpUrl)
                 .build();

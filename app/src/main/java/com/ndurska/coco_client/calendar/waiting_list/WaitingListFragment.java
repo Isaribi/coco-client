@@ -48,7 +48,7 @@ public class WaitingListFragment extends DialogFragment implements AddWaitingLis
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        waitingListRequestDispatcher = new WaitingListRequestDispatcher();
+        waitingListRequestDispatcher = new WaitingListRequestDispatcher(context);
         if (getArguments() != null) {
             waitingList = (List<WaitingListRecordDto>) getArguments().getSerializable("waitingList");
         }

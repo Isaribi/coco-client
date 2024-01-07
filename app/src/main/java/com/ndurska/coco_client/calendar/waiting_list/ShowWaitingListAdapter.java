@@ -29,7 +29,7 @@ public class ShowWaitingListAdapter extends RecyclerView.Adapter<WaitingListReco
     public ShowWaitingListAdapter(Context context, List<WaitingListRecordDto> waitingList) {
         this.waitingList = waitingList;
         this.context = (CalendarActivity) context;
-        waitingListRequestDispatcher = new WaitingListRequestDispatcher();
+        waitingListRequestDispatcher = new WaitingListRequestDispatcher(context);
     }
 
     @NonNull

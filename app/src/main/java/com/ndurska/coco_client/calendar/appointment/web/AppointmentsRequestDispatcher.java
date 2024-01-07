@@ -1,5 +1,7 @@
 package com.ndurska.coco_client.calendar.appointment.web;
 
+import android.content.Context;
+
 import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
 import com.ndurska.coco_client.shared.AbstractRequestDispatcher;
 import com.ndurska.coco_client.shared.JsonConverter;
@@ -15,13 +17,14 @@ public class AppointmentsRequestDispatcher extends AbstractRequestDispatcher {
     private final String url = "http://10.0.2.2:8080/api/appointments";
     private final JsonConverter<AppointmentDto> appointmentJsonConverter;
 
-    public AppointmentsRequestDispatcher() {
+    public AppointmentsRequestDispatcher(Context context) {
+        super(context);
         appointmentJsonConverter = new JsonConverter<>(AppointmentDto.class);
     }
 
     public AppointmentDto addAppointment(AppointmentDto appointmentDto) {
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .post(Objects.requireNonNull(appointmentJsonConverter.createJsonRequestBody(appointmentDto)))
                 .url(url)
                 .build();
@@ -39,7 +42,7 @@ public class AppointmentsRequestDispatcher extends AbstractRequestDispatcher {
                 .addQueryParameter("date", String.valueOf(date))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .get()
                 .url(httpUrl)
                 .build();
@@ -56,7 +59,7 @@ public class AppointmentsRequestDispatcher extends AbstractRequestDispatcher {
                 .addQueryParameter("id", String.valueOf(id))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .delete()
                 .url(httpUrl)
                 .build();
@@ -70,7 +73,7 @@ public class AppointmentsRequestDispatcher extends AbstractRequestDispatcher {
                 .newBuilder()
                 .addQueryParameter("id", String.valueOf(appointmentID))
                 .build();
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .url(httpUrl)
                 .build();
 
@@ -85,7 +88,7 @@ public class AppointmentsRequestDispatcher extends AbstractRequestDispatcher {
                 .newBuilder()
                 .addQueryParameter("id", String.valueOf(appointmentDto.getId()))
                 .build();
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .url(httpUrl)
                 .put(Objects.requireNonNull(appointmentJsonConverter.createJsonRequestBody(appointmentDto)))
                 .build();
@@ -102,7 +105,7 @@ public class AppointmentsRequestDispatcher extends AbstractRequestDispatcher {
                 .addQueryParameter("dogId", String.valueOf(id))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .get()
                 .url(httpUrl)
                 .build();
@@ -117,7 +120,7 @@ public class AppointmentsRequestDispatcher extends AbstractRequestDispatcher {
                 .newBuilder()
                 .addQueryParameter("dogId", String.valueOf(dogId))
                 .build();
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .url(httpUrl)
                 .build();
 

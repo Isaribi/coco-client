@@ -1,5 +1,7 @@
 package com.ndurska.coco_client.database.web;
 
+import android.content.Context;
+
 import com.ndurska.coco_client.database.dto.DogDto;
 import com.ndurska.coco_client.shared.AbstractRequestDispatcher;
 import com.ndurska.coco_client.shared.JsonConverter;
@@ -16,7 +18,8 @@ public class DogsRequestDispatcher extends AbstractRequestDispatcher {
 
     private final JsonConverter<DogDto> jsonConverter;
 
-    public DogsRequestDispatcher() {
+    public DogsRequestDispatcher(Context context) {
+        super(context);
         jsonConverter = new JsonConverter<>(DogDto.class);
     }
 
@@ -29,7 +32,7 @@ public class DogsRequestDispatcher extends AbstractRequestDispatcher {
                 .addQueryParameter("id", String.valueOf(id))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .get()
                 .url(httpUrl)
                 .build();
@@ -50,7 +53,7 @@ public class DogsRequestDispatcher extends AbstractRequestDispatcher {
                 .addQueryParameter("id", String.valueOf(dogID))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .delete()
                 .url(httpUrl)
                 .build();
@@ -65,7 +68,7 @@ public class DogsRequestDispatcher extends AbstractRequestDispatcher {
                 .addQueryParameter("id", String.valueOf(dogID))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .url(httpUrl)
                 .build();
 
@@ -75,7 +78,7 @@ public class DogsRequestDispatcher extends AbstractRequestDispatcher {
     }
 
     public List<DogDto> getDogs() {
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .url(url + "/all")
                 .build();
 
@@ -92,7 +95,7 @@ public class DogsRequestDispatcher extends AbstractRequestDispatcher {
                 .addQueryParameter("id", String.valueOf(dog.getId()))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .put(Objects.requireNonNull(jsonConverter.createJsonRequestBody(dog)))
                 .url(httpUrl)
                 .build();
@@ -103,7 +106,7 @@ public class DogsRequestDispatcher extends AbstractRequestDispatcher {
     }
 
     public DogDto addDog(DogDto dog) {
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .post(Objects.requireNonNull(jsonConverter.createJsonRequestBody(dog)))
                 .url(url)
                 .build();
@@ -121,7 +124,7 @@ public class DogsRequestDispatcher extends AbstractRequestDispatcher {
                 .addQueryParameter("ids", String.valueOf(iDs))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .url(httpUrl)
                 .build();
 

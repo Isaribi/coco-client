@@ -63,7 +63,7 @@ public class AppointmentSummaryFragment extends DialogFragment implements Appoin
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        appointmentsRequestDispatcher = new AppointmentsRequestDispatcher();
+        appointmentsRequestDispatcher = new AppointmentsRequestDispatcher(getContext());
     }
 
     @Override

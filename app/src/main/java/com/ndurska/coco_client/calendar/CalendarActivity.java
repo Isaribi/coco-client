@@ -1,7 +1,10 @@
 package com.ndurska.coco_client.calendar;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -45,6 +48,8 @@ import com.ndurska.coco_client.database.DatabaseActivity;
 import com.ndurska.coco_client.database.dto.DogDto;
 import com.ndurska.coco_client.database.web.DogsRequestDispatcher;
 import com.ndurska.coco_client.shared.ChooseDogAdapter;
+import com.ndurska.coco_client.shared.TokenHandler;
+import com.ndurska.coco_client.shared.login.LoginRequestDispatcher;
 import com.ndurska.coco_client.summary.DailySummaryActivity;
 
 import java.time.LocalDate;
@@ -84,6 +89,7 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
     UnavailablePeriodRequestDispatcher unavailablePeriodRequestDispatcher;
     WaitingListRequestDispatcher waitingListRequestDispatcher;
     MonthlySummaryRequestDispatcher monthlySummaryRequestDispatcher;
+    LoginRequestDispatcher loginRequestDispatcher;
 
     DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -102,11 +108,12 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_calendar);
-        dogsRequestDispatcher = new DogsRequestDispatcher();
-        appointmentsRequestDispatcher = new AppointmentsRequestDispatcher();
-        unavailablePeriodRequestDispatcher = new UnavailablePeriodRequestDispatcher();
-        waitingListRequestDispatcher = new WaitingListRequestDispatcher();
-        monthlySummaryRequestDispatcher = new MonthlySummaryRequestDispatcher();
+        dogsRequestDispatcher = new DogsRequestDispatcher(this);
+        appointmentsRequestDispatcher = new AppointmentsRequestDispatcher(this);
+        unavailablePeriodRequestDispatcher = new UnavailablePeriodRequestDispatcher(this);
+        waitingListRequestDispatcher = new WaitingListRequestDispatcher(this);
+        monthlySummaryRequestDispatcher = new MonthlySummaryRequestDispatcher(this);
+        loginRequestDispatcher = new LoginRequestDispatcher(this);
         executorService = Executors.newFixedThreadPool(10);
         findViews();
         initToolbar();
@@ -151,37 +158,30 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
             return true;
         } else if (item.getItemId() == R.id.month_summary) {
             FragmentManager fm = getSupportFragmentManager();
-            executorService.execute(()->{
+            executorService.execute(() -> {
                 monthSummaryFragment = MonthSummaryFragment.newInstance(monthlySummaryRequestDispatcher.getMonthlySummary(CalendarUtils.selectedDate));
                 monthSummaryFragment.show(fm, "finances_fragment");
 
             });
             return true;
-        } else
-            return super.onOptionsItemSelected(item);
-    }
 
-    private void setWeekView() {
-        tvMonthYear.setText(CalendarUtils.monthYearFromDate(CalendarUtils.selectedDate));
-
-        ArrayList<LocalDate> days = CalendarUtils.daysInWeekArray(CalendarUtils.selectedDate);
-        try {
-            executorService.execute(() -> {
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                ft.replace(R.id.clMonday, getCalendarDay(days, 0));
-                ft.replace(R.id.clTuesday, getCalendarDay(days, 1));
-                ft.replace(R.id.clWednesday, getCalendarDay(days, 2));
-                ft.replace(R.id.clThursday, getCalendarDay(days, 3));
-                ft.replace(R.id.clFriday, getCalendarDay(days, 4));
-                ft.replace(R.id.clSaturday, getCalendarDay(days, 5));
-                ft.commit();
-            });
-
-
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), " " + e.toString(), Toast.LENGTH_LONG).show();
+        } else if (item.getItemId() == R.id.logout) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Wyloguj się")
+                    .setMessage("Czy chcesz się wylogować?")
+                    .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                        removeToken();
+                        setWeekView();
+                    })
+                    .setNegativeButton(android.R.string.no, null)
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .show();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
+
+
 
     @Override
     public void onRecyclerItemClicked(DogDto dog) {
@@ -477,7 +477,6 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
                 rvWaitingListForShownWeek.setAdapter(new ShowWaitingListAdapter(this, waitingListForTheWeek));
             });
         });
-
     }
 
     private void setWaitingListForShownWeek() {
@@ -511,7 +510,7 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
         int x = location[0];
         int y = location[1];
         view.measure(0, 0);
-        popupWindow.showAtLocation(this.findViewById(android.R.id.content), Gravity.NO_GRAVITY, x + view.getMeasuredWidth() / 2, y);
+        popupWindow.showAtLocation(this.findViewById(android.R.id.content), Gravity.NO_GRAVITY, x + view.getMeasuredWidth() , y);
     }
 
     private void findTimeLockingViews(View popupAppointmentOptions) {
@@ -575,5 +574,35 @@ public class CalendarActivity extends AppCompatActivity implements ChooseDogAdap
         btnMoveAppointmentUp = popupAppointmentOptions.findViewById(R.id.btnMoveAppointmentUp);
         btnMoveAppointmentDown = popupAppointmentOptions.findViewById(R.id.btnMoveAppointmentDown);
         return popupWindow;
+    }
+
+    private void removeToken() {
+        SharedPreferences.Editor editor = this.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE).edit();
+        editor.remove("jwtToken");
+        editor.apply();
+
+        TokenHandler.jwtToken = "";
+    }
+
+    private void setWeekView() {
+        tvMonthYear.setText(CalendarUtils.monthYearFromDate(CalendarUtils.selectedDate));
+
+        ArrayList<LocalDate> days = CalendarUtils.daysInWeekArray(CalendarUtils.selectedDate);
+        try {
+            executorService.execute(() -> {
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.clMonday, getCalendarDay(days, 0));
+                ft.replace(R.id.clTuesday, getCalendarDay(days, 1));
+                ft.replace(R.id.clWednesday, getCalendarDay(days, 2));
+                ft.replace(R.id.clThursday, getCalendarDay(days, 3));
+                ft.replace(R.id.clFriday, getCalendarDay(days, 4));
+                ft.replace(R.id.clSaturday, getCalendarDay(days, 5));
+                ft.commit();
+            });
+
+
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), " " + e.toString(), Toast.LENGTH_LONG).show();
+        }
     }
 }

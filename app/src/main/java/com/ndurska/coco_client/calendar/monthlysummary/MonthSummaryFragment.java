@@ -16,7 +16,6 @@ import androidx.fragment.app.DialogFragment;
 import com.ndurska.coco_client.R;
 import com.ndurska.coco_client.calendar.CalendarUtils;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 
 
@@ -55,7 +54,7 @@ public class MonthSummaryFragment extends DialogFragment {
             monthSummaryDTO = (MonthSummaryDTO) getArguments().getSerializable(ARG_MONTH_SUMMARY_DTO);
         }
         date = LocalDate.now();
-        monthlySummaryRequestDispatcher = new MonthlySummaryRequestDispatcher();
+        monthlySummaryRequestDispatcher = new MonthlySummaryRequestDispatcher(getContext());
     }
 
     @Override

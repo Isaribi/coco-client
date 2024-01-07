@@ -105,9 +105,9 @@ public class CreateAppointmentFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dogsRequestDispatcher = new DogsRequestDispatcher();
-        appointmentsRequestDispatcher = new AppointmentsRequestDispatcher();
-        waitingListRequestDispatcher = new WaitingListRequestDispatcher();
+        dogsRequestDispatcher = new DogsRequestDispatcher(getContext());
+        appointmentsRequestDispatcher = new AppointmentsRequestDispatcher(getContext());
+        waitingListRequestDispatcher = new WaitingListRequestDispatcher(getContext());
         executorService.execute(
                 () -> {
                     dogs = dogsRequestDispatcher.getDogs();

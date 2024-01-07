@@ -47,7 +47,7 @@ public class ShowAppointments extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            appointmentsRequestDispatcher = new AppointmentsRequestDispatcher();
+            appointmentsRequestDispatcher = new AppointmentsRequestDispatcher(getContext());
             dogDto = (DogDto) getArguments().getSerializable("dogDto");
         }
     }

@@ -1,5 +1,7 @@
 package com.ndurska.coco_client.calendar.monthlysummary;
 
+import android.content.Context;
+
 import com.ndurska.coco_client.shared.AbstractRequestDispatcher;
 import com.ndurska.coco_client.shared.JsonConverter;
 
@@ -14,7 +16,8 @@ public class MonthlySummaryRequestDispatcher extends AbstractRequestDispatcher {
 
     private final JsonConverter<MonthSummaryDTO> appointmentJsonConverter;
 
-    public MonthlySummaryRequestDispatcher() {
+    public MonthlySummaryRequestDispatcher(Context context) {
+        super(context);
         appointmentJsonConverter = new JsonConverter<>(MonthSummaryDTO.class);
     }
 
@@ -25,7 +28,7 @@ public class MonthlySummaryRequestDispatcher extends AbstractRequestDispatcher {
                 .addQueryParameter("date", String.valueOf(date))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .get()
                 .url(httpUrl)
                 .build();

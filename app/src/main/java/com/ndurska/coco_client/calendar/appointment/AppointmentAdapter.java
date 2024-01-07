@@ -149,7 +149,7 @@ public class AppointmentAdapter extends ArrayAdapter<AppointmentCell> {
     }
 
     private void addNoteButton(String note) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(35, 35);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(25, 25);
         Button notesButton = new Button(getContext());
         notesButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_exclamation_mark, 0, 0, 0);
         notesButton.setLayoutParams(params);

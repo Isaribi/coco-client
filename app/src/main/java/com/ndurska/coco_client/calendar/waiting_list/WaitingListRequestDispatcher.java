@@ -1,5 +1,7 @@
 package com.ndurska.coco_client.calendar.waiting_list;
 
+import android.content.Context;
+
 import com.ndurska.coco_client.shared.AbstractRequestDispatcher;
 import com.ndurska.coco_client.shared.JsonConverter;
 
@@ -14,13 +16,14 @@ public class WaitingListRequestDispatcher extends AbstractRequestDispatcher {
     private final String url = "http://10.0.2.2:8080/api/waiting-list";
     private final JsonConverter<WaitingListRecordDto> appointmentJsonConverter;
 
-    public WaitingListRequestDispatcher() {
+    public WaitingListRequestDispatcher(Context context) {
+        super(context);
         appointmentJsonConverter = new JsonConverter<>(WaitingListRecordDto.class);
     }
 
     public WaitingListRecordDto addWaitlingListRecord(WaitingListRecordDto waitingListRecordDto) {
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .post(Objects.requireNonNull(appointmentJsonConverter.createJsonRequestBody(waitingListRecordDto)))
                 .url(url)
                 .build();
@@ -37,7 +40,7 @@ public class WaitingListRequestDispatcher extends AbstractRequestDispatcher {
                 .addQueryParameter("date", String.valueOf(date))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .get()
                 .url(httpUrl)
                 .build();
@@ -54,7 +57,7 @@ public class WaitingListRequestDispatcher extends AbstractRequestDispatcher {
                 .addQueryParameter("monday", String.valueOf(monday))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .get()
                 .url(httpUrl)
                 .build();
@@ -81,7 +84,7 @@ public class WaitingListRequestDispatcher extends AbstractRequestDispatcher {
                 .addQueryParameter("id", String.valueOf(id))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = getRequestBuilder()
                 .delete()
                 .url(httpUrl)
                 .build();

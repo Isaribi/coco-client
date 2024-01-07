@@ -137,8 +137,8 @@ public class DogCardBig extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = (DatabaseActivity) getActivity();
-        dogsRequestDispatcher = new DogsRequestDispatcher();
-        appointmentsRequestDispatcher = new AppointmentsRequestDispatcher();
+        dogsRequestDispatcher = new DogsRequestDispatcher(getContext());
+        appointmentsRequestDispatcher = new AppointmentsRequestDispatcher(getContext());
         initViews(view);
         displayData();
         setListeners();

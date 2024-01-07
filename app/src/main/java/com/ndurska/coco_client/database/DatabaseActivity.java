@@ -54,7 +54,7 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.database_activity);
-        dogsRequestDispatcher = new DogsRequestDispatcher();
+        dogsRequestDispatcher = new DogsRequestDispatcher(getApplicationContext());
         executorService.execute(
                 () -> {
                     dogs = dogsRequestDispatcher.getDogs();
@@ -152,10 +152,10 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
         DogCardBig dogCardBig = DogCardBig.newInstance(dog);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.placeholder, dogCardBig).commit();
-        for (DogDto c : dogs)
-            if (Objects.equals(c.getId(), dog.getId())) {
-                setActiveDogPosition(dogs.indexOf(c));
-                adapter.setClickedDog(c);
+        for (DogDto dto : dogs)
+            if (Objects.equals(dto.getId(), dog.getId())) {
+                setActiveDogPosition(dogs.indexOf(dto));
+                adapter.setClickedDog(dto);
             }
     }
 
@@ -250,6 +250,4 @@ public class DatabaseActivity extends AppCompatActivity implements DogCardEdit.D
             requestPermissions(permissions, PERMISSION_REQUEST_CODE);
         }
     }
-
-
 }

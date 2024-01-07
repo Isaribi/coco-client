@@ -38,7 +38,7 @@ public class ChooseDogAdapter extends RecyclerView.Adapter<ChooseDogAdapter.DogC
         this.items = items;
         this.context = context;
 
-        dogsRequestDispatcher = new DogsRequestDispatcher();
+        dogsRequestDispatcher = new DogsRequestDispatcher(context.getApplicationContext());
     }
 
 

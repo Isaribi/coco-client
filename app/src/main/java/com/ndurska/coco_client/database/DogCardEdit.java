@@ -181,6 +181,9 @@ public class DogCardEdit extends Fragment {
 
     public static DogCardEdit newInstance() { //display an empty card for new dog creation
         DogDto dog = new DogDto();
+        dog.setExpectedAppointmentDuration(90);
+        dog.setPhoneNumberLabel1("Telefon:");
+        dog.setPhoneNumberLabel2("Telefon:");
         return createDogCardFromDog(dog);
     }
 
@@ -223,7 +226,7 @@ public class DogCardEdit extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = (DatabaseActivity) getActivity();
-        dogsRequestDispatcher = new DogsRequestDispatcher();
+        dogsRequestDispatcher = new DogsRequestDispatcher(getContext());
         findViews(view);
         displayDogInfo();
         setListeners();
@@ -277,9 +280,11 @@ public class DogCardEdit extends Fragment {
 
     private boolean dogInfoIsValid() {
         if (noDogInformationProvided()) {
-            etDogName.setError(getString(R.string.enter_name_error));
-            etDogPseudonym.setError(getString(R.string.enter_adjective_error));
-            etDogBreed.setError(getString(R.string.enter_breed_error));
+            activity.runOnUiThread(() -> {
+                etDogName.setError(getString(R.string.enter_name_error));
+                etDogPseudonym.setError(getString(R.string.enter_adjective_error));
+                etDogBreed.setError(getString(R.string.enter_breed_error));
+            });
             return false;
         }
         String fullName = etDogName.getText().toString().trim() + etDogPseudonym.getText().toString().trim() + etDogBreed.getText().toString().trim();

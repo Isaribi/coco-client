@@ -35,7 +35,7 @@ public class ChooseMultipleClientsAdapter extends RecyclerView.Adapter<ChooseDog
         this.context = context;
         this.chosenDogs = new ArrayList<>();
 
-        dogsRequestDispatcher = new DogsRequestDispatcher();
+        dogsRequestDispatcher = new DogsRequestDispatcher(context);
 
     }
 
