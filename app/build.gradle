@@ -1,3 +1,8 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
 plugins {
     id 'com.android.application'
 }
@@ -28,6 +33,7 @@ android {
     }
 }
 
+
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -50,4 +56,7 @@ dependencies {
     // define any required OkHttp artifacts without version
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:logging-interceptor")
+
+    implementation 'org.codehaus.groovy:groovy-all:3.0.9' // Use the latest version
+    testImplementation 'org.spockframework:spock-core:2.0-M3-groovy-3.0' // Use the latest version
 }

@@ -38,7 +38,7 @@ public class AppointmentCell {
     }
 
     private void setThisDayAppointments() {
-        int timeInMinutes = time.getHour() * 60 + time.getMinute();
+        int timeInMinutes = getTimeInMinutes(time);
         unavailable = checkIfUnavailable(timeInMinutes);
         for (AppointmentDto appointmentDto : appointmentDtos) {
             checkIfFirstCellOfAppointment(appointmentDto);
@@ -46,41 +46,48 @@ public class AppointmentCell {
         }
     }
 
+    private int getTimeInMinutes(LocalTime time) {
+        return time.getHour() * 60 + time.getMinute();
+    }
+
     private void checkIfFirstCellOfAppointment(AppointmentDto appointmentDto) {
         if (Objects.equals(appointmentDto.getTime(), time)) {
-            for (DogDto dog : dogs)
+            for (DogDto dog : dogs) {
                 if (dog == appointmentDto.getDogDto()) {
                     appointmentHeaders.add(new AppointmentHeader(dog, appointmentDto.getNotes()));
                     IDs.add(appointmentDto.getId());
                     firstCellOfAppointment = true;
                 }
+            }
             numberOfAppointments++;
         }
     }
 
     private void checkIfLastOrMiddleCellOfAppointment(AppointmentDto appointmentDto, int timeInMinutes) {
-        for (DogDto dog : dogs)
+        for (DogDto dog : dogs) {
             if (dog == appointmentDto.getDogDto()) {
-                int appStartInMinutes = appointmentDto.getTime().getHour() * 60 + appointmentDto.getTime().getMinute();
+                int appStartInMinutes = getTimeInMinutes(appointmentDto.getTime());
                 int appEndInMinutes = appStartInMinutes + dog.getExpectedAppointmentDuration();
                 if (timeInMinutes > appStartInMinutes && timeInMinutes < appEndInMinutes) {
                     numberOfAppointments++;
                     //check if this is a last time cell of any appointmentDto with some time flexibility (so 40 minutes of appointmentDto will use two cells)
-                    if (timeInMinutes >= appEndInMinutes - 30 && timeInMinutes <= appEndInMinutes + 30)
+                    if (timeInMinutes >= appEndInMinutes - 30 && timeInMinutes <= appEndInMinutes + 30) {
                         lastCellOfAppointment = true;
-                    else if (!firstCellOfAppointment)//if not first and not last it has to be middle one
+                    } else if (!firstCellOfAppointment) {//if not first and not last it has to be middle one
                         middleCellOfAppointment = true;
+                    }
                 }
             }
+        }
     }
-
 
     private boolean checkIfUnavailable(int timeInMinutes) {
         for (UnavailablePeriodDto unavailablePeriodDto : unavailablePeriodDtos) {
-            int upStartInMinutes = unavailablePeriodDto.getTimeStart().getHour() * 60 + unavailablePeriodDto.getTimeStart().getMinute();
-            int upEndInMinutes = unavailablePeriodDto.getTimeEnd().getHour() * 60 + unavailablePeriodDto.getTimeEnd().getMinute();
-            if (timeInMinutes >= upStartInMinutes && timeInMinutes < upEndInMinutes)
+            int upStartInMinutes = getTimeInMinutes(unavailablePeriodDto.getTimeStart());
+            int upEndInMinutes = getTimeInMinutes(unavailablePeriodDto.getTimeEnd());
+            if (timeInMinutes >= upStartInMinutes && timeInMinutes < upEndInMinutes) {
                 return true;
+            }
         }
         return false;
     }
