@@ -17,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.ndurska.coco_client.R;
-import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
 import com.ndurska.coco_client.database.dto.DogDto;
 
 import java.time.LocalDate;
@@ -43,9 +42,13 @@ public class AppointmentAdapter extends ArrayAdapter<AppointmentCell> {
         void onNotesButtonClicked(Button btn, String note);
     }
 
-    public AppointmentAdapter(@NonNull Context context, List<AppointmentCell> appointmentCells, List<AppointmentDto> appointmentDtos) {
+    public AppointmentAdapter(@NonNull Context context, List<AppointmentCell> appointmentCells) {
         super(context, 0, appointmentCells);
-        listener = (AppointmentAdapterListener) context;
+        if (context instanceof AppointmentAdapter.AppointmentAdapterListener) {
+            listener = (AppointmentAdapter.AppointmentAdapterListener) context;
+        } else {
+            throw new RuntimeException("" + context + R.string.must_implement + "  AppointmentAdapter.AppointmentAdapterListener");
+        }
     }
 
     @NonNull
@@ -80,11 +83,9 @@ public class AppointmentAdapter extends ArrayAdapter<AppointmentCell> {
             if (appointmentCell.getAppointmentHeader(i).hasNote())
                 addNoteButton(appointmentCell.getAppointmentHeader(i).getNote());
         }
-
     }
 
     private void setListeners(View view, LocalDate date, LocalTime time) {
-
         if (appointmentCell.isUnavailable()) {
             view.setOnClickListener(view1 -> listener.onUnavailableItemClicked(view, date, time));
         } else {
@@ -94,7 +95,6 @@ public class AppointmentAdapter extends ArrayAdapter<AppointmentCell> {
                 return true;
             });
         }
-
     }
 
     private TextView createTextViewWithAppointmentInfo(int i) {

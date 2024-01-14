@@ -2,7 +2,6 @@ package com.ndurska.coco_client.calendar.appointment;
 
 import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
 import com.ndurska.coco_client.calendar.unavailable_period.UnavailablePeriodDto;
-import com.ndurska.coco_client.database.dto.DogDto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -12,7 +11,7 @@ import java.util.Objects;
 
 /**
  * AppointmentCell is a representation of a single 30 minute cell of appointment calendar. Similar to a ViewHolder.
- * AppointmentCell objects of the same day share static lists of clients and appointmentDtos and set their behaviour and appearance accordingly.
+ * AppointmentCell objects of the same day share static lists of appointments and set their behaviour and appearance accordingly.
  */
 
 public class AppointmentCell {
@@ -25,9 +24,8 @@ public class AppointmentCell {
     private boolean middleCellOfAppointment;
     private final LocalTime time;
     private final LocalDate date;
-    private static ArrayList<AppointmentDto> appointmentDtos;
-    private static ArrayList<DogDto> dogs;
-    private static ArrayList<UnavailablePeriodDto> unavailablePeriodDtos;
+    private static List<AppointmentDto> appointments;
+    private static List<UnavailablePeriodDto> unavailablePeriods;
 
     public AppointmentCell(LocalDate date, LocalTime time) {
         this.time = time;
@@ -38,54 +36,48 @@ public class AppointmentCell {
     }
 
     private void setThisDayAppointments() {
-        int timeInMinutes = getTimeInMinutes(time);
-        unavailable = checkIfUnavailable(timeInMinutes);
-        for (AppointmentDto appointmentDto : appointmentDtos) {
-            checkIfFirstCellOfAppointment(appointmentDto);
-            checkIfLastOrMiddleCellOfAppointment(appointmentDto, timeInMinutes);
+        unavailable = checkIfUnavailable();
+        for (AppointmentDto appointment : appointments) {
+            checkIfFirstCellOfAppointment(appointment);
+            checkIfLastCellOfAppointment(appointment);
+            checkIfMiddleCellOfAppointment(appointment);
         }
     }
 
-    private int getTimeInMinutes(LocalTime time) {
-        return time.getHour() * 60 + time.getMinute();
-    }
-
-    private void checkIfFirstCellOfAppointment(AppointmentDto appointmentDto) {
-        if (Objects.equals(appointmentDto.getTime(), time)) {
-            for (DogDto dog : dogs) {
-                if (dog == appointmentDto.getDogDto()) {
-                    appointmentHeaders.add(new AppointmentHeader(dog, appointmentDto.getNotes()));
-                    IDs.add(appointmentDto.getId());
-                    firstCellOfAppointment = true;
-                }
-            }
+    private void checkIfFirstCellOfAppointment(AppointmentDto appointment) {
+        if (Objects.equals(appointment.getTime(), time)) {
+            appointmentHeaders.add(new AppointmentHeader(appointment.getDogDto(), appointment.getNotes()));
+            IDs.add(appointment.getId());
+            firstCellOfAppointment = true;
             numberOfAppointments++;
         }
     }
 
-    private void checkIfLastOrMiddleCellOfAppointment(AppointmentDto appointmentDto, int timeInMinutes) {
-        for (DogDto dog : dogs) {
-            if (dog == appointmentDto.getDogDto()) {
-                int appStartInMinutes = getTimeInMinutes(appointmentDto.getTime());
-                int appEndInMinutes = appStartInMinutes + dog.getExpectedAppointmentDuration();
-                if (timeInMinutes > appStartInMinutes && timeInMinutes < appEndInMinutes) {
-                    numberOfAppointments++;
-                    //check if this is a last time cell of any appointmentDto with some time flexibility (so 40 minutes of appointmentDto will use two cells)
-                    if (timeInMinutes >= appEndInMinutes - 30 && timeInMinutes <= appEndInMinutes + 30) {
-                        lastCellOfAppointment = true;
-                    } else if (!firstCellOfAppointment) {//if not first and not last it has to be middle one
-                        middleCellOfAppointment = true;
-                    }
-                }
+    private void checkIfLastCellOfAppointment(AppointmentDto appointment) {
+        LocalTime appStart = appointment.getTime();
+        LocalTime appEnd = appointment.getTime().plusMinutes(appointment.getDogDto().getExpectedAppointmentDuration());
+        if (time.isAfter(appStart) && time.isBefore(appEnd)) {
+                if (!time.isBefore(appEnd.minusMinutes(30)) && !time.isAfter(appEnd.plusMinutes(30))) {
+                lastCellOfAppointment = true;
+                numberOfAppointments++;
             }
         }
     }
 
-    private boolean checkIfUnavailable(int timeInMinutes) {
-        for (UnavailablePeriodDto unavailablePeriodDto : unavailablePeriodDtos) {
-            int upStartInMinutes = getTimeInMinutes(unavailablePeriodDto.getTimeStart());
-            int upEndInMinutes = getTimeInMinutes(unavailablePeriodDto.getTimeEnd());
-            if (timeInMinutes >= upStartInMinutes && timeInMinutes < upEndInMinutes) {
+    private void checkIfMiddleCellOfAppointment(AppointmentDto appointment) {
+        LocalTime appStart = appointment.getTime();
+        LocalTime appEnd = appointment.getTime().plusMinutes(appointment.getDogDto().getExpectedAppointmentDuration());
+        if (time.isAfter(appStart) && time.isBefore(appEnd)) {
+            if (!firstCellOfAppointment && !lastCellOfAppointment) {
+                middleCellOfAppointment = true;
+                numberOfAppointments++;
+            }
+        }
+    }
+
+    private boolean checkIfUnavailable() {
+        for (UnavailablePeriodDto unavailablePeriodDto : unavailablePeriods) {
+            if (time.isAfter(unavailablePeriodDto.getTimeStart()) && time.isBefore(unavailablePeriodDto.getTimeEnd())) {
                 return true;
             }
         }
@@ -102,16 +94,12 @@ public class AppointmentCell {
         return date;
     }
 
-    public static void setAppointments(ArrayList<AppointmentDto> appointmentDtos) {
-        AppointmentCell.appointmentDtos = appointmentDtos;
+    public static void setAppointments(List<AppointmentDto> appointmentDtos) {
+        AppointmentCell.appointments = appointmentDtos;
     }
 
-    public static void setDogs(ArrayList<DogDto> dogs) {
-        AppointmentCell.dogs = dogs;
-    }
-
-    public static void setUnavailablePeriods(ArrayList<UnavailablePeriodDto> unavailablePeriodDtos) {
-        AppointmentCell.unavailablePeriodDtos = unavailablePeriodDtos;
+    public static void setUnavailablePeriods(List<UnavailablePeriodDto> unavailablePeriodDtos) {
+        AppointmentCell.unavailablePeriods = unavailablePeriodDtos;
     }
 
     public AppointmentHeader getAppointmentHeader(int i) {

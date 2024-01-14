@@ -80,38 +80,19 @@ public class CalendarDay extends Fragment {
         String day = CalendarUtils.dayMonthFromDate(date) + " - " + date.getDayOfWeek().getDisplayName(TextStyle.FULL, CalendarUtils.locale);
         tvDay.setText(day);
         tvDay.setOnLongClickListener(view1 -> listener.onDayLabelLongClicked(tvDay, date));
-
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_calendar_day, container, false);
         llLabels = view.findViewById(R.id.llLabels);
         setCellAdapter();
         return view;
     }
 
-    private ArrayList<AppointmentCell> getAppointmentCellList() {
-        ArrayList<AppointmentCell> list = new ArrayList<>();
-        AppointmentCell.setAppointments((ArrayList<AppointmentDto>) appointmentDtos);
-        AppointmentCell.setDogs((ArrayList<DogDto>) dogs);
-        AppointmentCell.setUnavailablePeriods((ArrayList<UnavailablePeriodDto>) unavailablePeriodDtos);
-
-        for (int hour = 9; hour <= 19; hour++) {
-            for (int minutes = 0; minutes <= 30; minutes += 30) {
-                LocalTime time = LocalTime.of(hour, minutes);
-                AppointmentCell cell = new AppointmentCell(date, time);
-
-                list.add(cell);
-            }
-        }
-        return list;
-    }
-
     private void setCellAdapter() {
         ArrayList<AppointmentCell> listOfCells = getAppointmentCellList();
-        AppointmentAdapter adapter = new AppointmentAdapter(this.requireContext(), listOfCells, appointmentDtos);
+        AppointmentAdapter adapter = new AppointmentAdapter(this.requireContext(), listOfCells);
         final int adapterCount = adapter.getCount();
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0);
@@ -123,5 +104,17 @@ public class CalendarDay extends Fragment {
             item.setPadding(5, 0, 0, 0);
             getActivity().runOnUiThread(() -> llLabels.addView(item));
         }
+    }
+
+    private ArrayList<AppointmentCell> getAppointmentCellList() {
+        ArrayList<AppointmentCell> cells = new ArrayList<>();
+        AppointmentCell.setAppointments(appointmentDtos);
+        AppointmentCell.setUnavailablePeriods(unavailablePeriodDtos);
+
+        for (LocalTime hour = LocalTime.of(9, 0); hour.isBefore(LocalTime.of(20, 0)); hour = hour.plusMinutes(30)) {
+            AppointmentCell cell = new AppointmentCell(date, hour);
+            cells.add(cell);
+        }
+        return cells;
     }
 }
