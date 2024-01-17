@@ -39,8 +39,7 @@ public class AppointmentCell {
         unavailable = checkIfUnavailable();
         for (AppointmentDto appointment : appointments) {
             checkIfFirstCellOfAppointment(appointment);
-            checkIfLastCellOfAppointment(appointment);
-            checkIfMiddleCellOfAppointment(appointment);
+            checkIfLastOrMiddleCellOfAppointment(appointment);
         }
     }
 
@@ -53,25 +52,16 @@ public class AppointmentCell {
         }
     }
 
-    private void checkIfLastCellOfAppointment(AppointmentDto appointment) {
-        LocalTime appStart = appointment.getTime();
-        LocalTime appEnd = appointment.getTime().plusMinutes(appointment.getDogDto().getExpectedAppointmentDuration());
+    private void checkIfLastOrMiddleCellOfAppointment(AppointmentDto appointmentDto) {
+        LocalTime appStart = appointmentDto.getTime();
+        LocalTime appEnd = appointmentDto.getTime().plusMinutes(appointmentDto.getDogDto().getExpectedAppointmentDuration());
         if (time.isAfter(appStart) && time.isBefore(appEnd)) {
-                if (!time.isBefore(appEnd.minusMinutes(30)) && !time.isAfter(appEnd.plusMinutes(30))) {
+            numberOfAppointments++;
+            //check if this is a last time cell of any appointmentDto with some time flexibility (so 40 minutes of appointmentDto will use two cells)
+            if (!time.isBefore(appEnd.minusMinutes(30)) && !time.isAfter(appEnd.plusMinutes(30)))
                 lastCellOfAppointment = true;
-                numberOfAppointments++;
-            }
-        }
-    }
-
-    private void checkIfMiddleCellOfAppointment(AppointmentDto appointment) {
-        LocalTime appStart = appointment.getTime();
-        LocalTime appEnd = appointment.getTime().plusMinutes(appointment.getDogDto().getExpectedAppointmentDuration());
-        if (time.isAfter(appStart) && time.isBefore(appEnd)) {
-            if (!firstCellOfAppointment && !lastCellOfAppointment) {
-                middleCellOfAppointment = true;
-                numberOfAppointments++;
-            }
+        } else if (!firstCellOfAppointment) {//if not first and not last it has to be middle one
+            middleCellOfAppointment = true;
         }
     }
 

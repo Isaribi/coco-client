@@ -11,20 +11,16 @@
 //
 //class AppointmentCellTest extends Specification {
 //
-//    def "checkIfFirstCellOfAppointment"() {
+//    def "should recogize all cells of an appointment properly"() {
 //        given:
 //        def dog = new DogDto(expectedAppointmentDuration: 90)
-//
 //        def appointmentDtos = [
 //                new AppointmentDto(time: LocalTime.of(9, 0), dogDto: dog)
 //        ]
 //        def dogs = [dog]
-//        def unavailablePeriodDtos = [
-//                new UnavailablePeriodDto(timeStart: LocalTime.of(14, 0), timeEnd: LocalTime.of(16, 0))
-//        ]
+//
 //        AppointmentCell.setAppointments(appointmentDtos)
 //        AppointmentCell.setDogs(dogs)
-//        AppointmentCell.setUnavailablePeriods(unavailablePeriodDtos)
 //
 //        when:
 //        def appointmentCell10_00AM = new AppointmentCell(LocalDate.now(), LocalTime.of(10, 0))
@@ -50,10 +46,10 @@
 //        assert appointmentCell11_00AM.lastCellOfAppointment
 //        assert !appointmentCell15_00AM.lastCellOfAppointment
 //
-//        then: "assert unavailable cell set properly"
-//        assert !appointmentCell10_00AM.unavailable
-//        assert !appointmentCell10_30AM.unavailable
-//        assert !appointmentCell11_00AM.unavailable
-//        assert appointmentCell15_00AM.unavailable
+//        then: "assert appointments are properly counted"
+//        assert appointmentCell10_00AM.numberOfAppointments == 1
+//        assert appointmentCell10_30AM.numberOfAppointments == 1
+//        assert appointmentCell11_00AM.numberOfAppointments == 1
+//        assert appointmentCell15_00AM.numberOfAppointments == 0
 //    }
 //}

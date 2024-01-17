@@ -13,7 +13,6 @@ import okhttp3.Response;
 public abstract class AbstractRequestDispatcher {
 
     private OkHttpClient client;
-    private Request.Builder requestBuilder;
     private Context context;
 
     public AbstractRequestDispatcher(Context context) {
@@ -21,7 +20,6 @@ public abstract class AbstractRequestDispatcher {
         SharedPreferences editor = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         TokenHandler.jwtToken = editor.getString("jwtToken", null);
         client = MyHttpClient.getClient(context);
-        requestBuilder = new Request.Builder();
     }
 
     protected String callRequestForBody(Request request) {
