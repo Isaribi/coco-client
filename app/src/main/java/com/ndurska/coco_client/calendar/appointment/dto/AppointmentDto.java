@@ -19,8 +19,9 @@ public class AppointmentDto implements Serializable {
     private boolean absence;
     private int amountPaid;
     private String notes;
+    private ProvidedService providedService;
 
-    public AppointmentDto(long id, LocalDate date, LocalTime time, DogDto dogDto, boolean absence, int amountPaid, String notes) {
+    public AppointmentDto(long id, LocalDate date, LocalTime time, DogDto dogDto, boolean absence, int amountPaid, String notes,ProvidedService providedService) {
         this.id = id;
         this.dogDto = dogDto;
         this.date = date;
@@ -28,6 +29,7 @@ public class AppointmentDto implements Serializable {
         this.absence = absence;
         this.amountPaid = amountPaid;
         this.notes = notes;
+        this.providedService = providedService;
     }
 
     public AppointmentDto() {
@@ -90,6 +92,13 @@ public class AppointmentDto implements Serializable {
         this.notes = notes;
     }
 
+    public ProvidedService getProvidedService() {
+        return providedService;
+    }
+
+    public void setProvidedService(ProvidedService providedService) {
+        this.providedService = providedService;
+    }
 
     @NonNull
     @Override
@@ -101,6 +110,7 @@ public class AppointmentDto implements Serializable {
                 ", time=" + time +
                 ", attendance=" + absence +
                 ", amountPaid=" + amountPaid +
+                ", providedService=" + providedService +
                 '}';
     }
 }

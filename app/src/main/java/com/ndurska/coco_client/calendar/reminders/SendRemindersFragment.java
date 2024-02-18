@@ -89,11 +89,14 @@ public class SendRemindersFragment extends DialogFragment {
         executorService.execute(() -> {
             appointments = appointmentsRequestDispatcher.getAppointmentsForTheDay(date);
             adapter = new SendRemindersAdapter(getActivity(), appointments);
-            rvReminderList.setAdapter(adapter);
+            getActivity().runOnUiThread(() -> {
+                rvReminderList.setAdapter(adapter);
 
-            tvDate.setText(CalendarUtils.dayMonthFromDate(date));
+                tvDate.setText(CalendarUtils.dayMonthFromDate(date));
 
-            setButtonListener();
+                setButtonListener();
+            });
+
 
             super.onViewCreated(view, savedInstanceState);
         });

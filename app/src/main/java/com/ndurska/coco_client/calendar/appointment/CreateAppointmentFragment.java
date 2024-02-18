@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
@@ -19,7 +20,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,7 +31,9 @@ import com.ndurska.coco_client.calendar.CalendarActivity;
 import com.ndurska.coco_client.calendar.CalendarUtils;
 import com.ndurska.coco_client.calendar.ChooseMultipleClientsAdapter;
 import com.ndurska.coco_client.calendar.appointment.dto.AppointmentDto;
+import com.ndurska.coco_client.calendar.appointment.dto.ProvidedService;
 import com.ndurska.coco_client.calendar.appointment.web.AppointmentsRequestDispatcher;
+import com.ndurska.coco_client.calendar.appointment.web.ProvidedServicesRequestDispatcher;
 import com.ndurska.coco_client.calendar.waiting_list.WaitingListRecordDto;
 import com.ndurska.coco_client.calendar.waiting_list.WaitingListRequestDispatcher;
 import com.ndurska.coco_client.database.DatabaseActivity;
@@ -44,6 +49,7 @@ import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 public class CreateAppointmentFragment extends DialogFragment {
@@ -58,18 +64,22 @@ public class CreateAppointmentFragment extends DialogFragment {
     private LocalTime time;
     private List<DogDto> dogs;
     private List<WaitingListRecordDto> waitingListForTheDay;
+    private List<ProvidedService> providedServices;
     private TextView etClientSearch, etAppointmentNotes;
     private TextView tvPhoneLabel1, tvPhoneLabel2;
     private CheckBox cbPhone1, cbPhone2;
     private RecyclerView rvClientList;
     private Button btnSave;
     private Button btnAddNewClient;
+    private AppCompatSpinner spinner;
+    private Button btnAddService;
 
 
     private EditAppointmentListener listener;
     private DogsRequestDispatcher dogsRequestDispatcher;
     private AppointmentsRequestDispatcher appointmentsRequestDispatcher;
     private WaitingListRequestDispatcher waitingListRequestDispatcher;
+    private ProvidedServicesRequestDispatcher providedServicesRequestDispatcher;
 
     public void newClientCreated(DogDto dog) {
         dogs.add(dog);
@@ -107,6 +117,7 @@ public class CreateAppointmentFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         dogsRequestDispatcher = new DogsRequestDispatcher(getContext());
         appointmentsRequestDispatcher = new AppointmentsRequestDispatcher(getContext());
+        providedServicesRequestDispatcher = new ProvidedServicesRequestDispatcher(getContext());
         waitingListRequestDispatcher = new WaitingListRequestDispatcher(getContext());
         executorService.execute(
                 () -> {
@@ -152,7 +163,7 @@ public class CreateAppointmentFragment extends DialogFragment {
                     activity = (CalendarActivity) getActivity();
                     if (activityHasActiveClient()) {
                         dog = activity.getActiveDog();
-                        boolean savingSuccess = createAppointment(time, dog, etAppointmentNotes.getText().toString());
+                        boolean savingSuccess = createAppointment(time, dog, etAppointmentNotes.getText().toString(),spinner.getSelectedItem().toString());
                         if (savingSuccess) {
                             checkIfClientIsOnWaitingList(dog);
                             sendTextWithAppointmentDate();
@@ -183,6 +194,12 @@ public class CreateAppointmentFragment extends DialogFragment {
             switchActivityIntent = new Intent(getActivity(), DatabaseActivity.class);
             startActivityForResult(switchActivityIntent, LAUNCH_ACTIVITY_TO_CREATE_CLIENT);
         });
+
+        btnAddService.setOnClickListener(view -> {
+            FragmentManager fm = getActivity().getSupportFragmentManager();
+            AddServiceFragment addServiceFragment = AddServiceFragment.newInstance();
+            addServiceFragment.show(fm, "fragment_add_service");
+        });
     }
 
     private void switchThisListenerToSavingMultipleClients(ChooseMultipleClientsAdapter adapter) {
@@ -198,7 +215,7 @@ public class CreateAppointmentFragment extends DialogFragment {
         LocalTime nextTime = time;
         for (DogDto nextDog : chosenDogs) {
             nextTime = nextTime.plusMinutes(30);
-            boolean savingSuccess = createAppointment(nextTime, nextDog, null);
+            boolean savingSuccess = createAppointment(nextTime, nextDog, null,spinner.getSelectedItem().toString());
             if (savingSuccess) {
                 checkIfClientIsOnWaitingList(nextDog);
             }
@@ -211,13 +228,15 @@ public class CreateAppointmentFragment extends DialogFragment {
         etAppointmentNotes.setEnabled(false);
     }
 
-    private boolean createAppointment(LocalTime time, DogDto dog, String etAppointmentNotes) {
+    private boolean createAppointment(LocalTime time, DogDto dog, String etAppointmentNotes,String serviceName) {
         LocalTime appointmentEnd = time.plusMinutes(dog.getExpectedAppointmentDuration());
+        ProvidedService providedService = providedServices.stream().filter(it -> it.getName().equals(serviceName)).collect(Collectors.toList()).get(0);
         if (appointmentEnd.isBefore(LocalTime.of(20, 1))) {
             appointmentDto.setDate(date);
             appointmentDto.setTime(time);
             appointmentDto.setDogDto(dog);
             appointmentDto.setNotes(etAppointmentNotes);
+            appointmentDto.setProvidedService(providedService);
             executorService.execute(() -> {
                 appointmentsRequestDispatcher.addAppointment(appointmentDto);
             });
@@ -272,11 +291,22 @@ public class CreateAppointmentFragment extends DialogFragment {
         rvClientList.setLayoutManager(new LinearLayoutManager(getActivity()));
         btnSave = view.findViewById(R.id.btnSaveAppointment);
         btnAddNewClient = view.findViewById(R.id.btnNewClient);
+        btnAddService = view.findViewById(R.id.btnShowServices);
         etAppointmentNotes = view.findViewById(R.id.etAppointmentNotes);
         tvPhoneLabel1 = view.findViewById(R.id.tvAppointmentPhoneLabel1);
         tvPhoneLabel2 = view.findViewById(R.id.tvAppointmentPhoneLabel2);
         cbPhone1 = view.findViewById(R.id.cbAppointmentPhoneNumber1);
         cbPhone2 = view.findViewById(R.id.cbAppointmentPhoneNumber2);
+        spinner = view.findViewById(R.id.apsService);
+
+        executorService.execute(() -> {
+            providedServices = (ArrayList<ProvidedService>) providedServicesRequestDispatcher.getProvidedServices();
+            List<String> cat = providedServices.stream().map(ProvidedService::getName).collect(Collectors.toList());
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, cat);
+            getActivity().runOnUiThread(() -> spinner.setAdapter(spinnerAdapter));
+        });
+
+
         String displayedDate = CalendarUtils.dayMonthFromDate(date) + " - " + date.getDayOfWeek().getDisplayName(TextStyle.FULL, CalendarUtils.locale);
         tvDate.setText(displayedDate);
         tvTime.setText(time.toString());

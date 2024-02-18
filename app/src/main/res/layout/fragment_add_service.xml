@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/color_coco_4"
+    tools:context="com.ndurska.coco_client.calendar.appointment.AddServiceFragment">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/header"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/divider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/color_coco_1">
+
+        <TextView
+            android:id="@+id/tvText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginStart="16dp"
+            android:gravity="center"
+            android:minHeight="40dp"
+            android:text="Świadczone usługi"
+            android:textColor="@color/color_coco_0"
+            android:textSize="45sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:id="@+id/headers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/color_coco_1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header">
+
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:text="Nazwa:"
+            tools:ignore="HardcodedText"
+            android:textColor="@color/color_coco_0"/>
+
+        <TextView
+            android:id="@+id/tvMinPrice"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center|start"
+            android:text="Min cena:"
+            tools:ignore="HardcodedText"
+            android:textColor="@color/color_coco_0"/>
+
+
+        <TextView
+            android:id="@+id/tvPayment"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:text="Max cena:"
+            tools:ignore="HardcodedText"
+            android:textColor="@color/color_coco_0"/>
+
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:text="Opis"
+
+            android:textColor="@color/color_coco_0"/>
+
+
+    </LinearLayout>
+
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="5dp"
+        android:background="@color/color_coco_2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvServices"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/color_coco_3"
+        android:minHeight="100dp"
+        app:layoutManager="LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@+id/csNewService"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/headers"
+        tools:context=".summary_activity.AppointmentSummaryFragment"
+        tools:listitem="@layout/service_item" />
+
+    <LinearLayout
+
+        android:id="@+id/csNewService"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"/>
+        <EditText
+            android:id="@+id/etMinPrice"
+            android:inputType="number"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"/>
+        <EditText
+            android:id="@+id/etMaxPrice"
+            android:inputType="number"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"/>
+        <EditText
+            android:id="@+id/etServiceNotes"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/btnAddService"
+
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

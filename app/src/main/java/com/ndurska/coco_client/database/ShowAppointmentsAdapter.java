@@ -44,6 +44,7 @@ public class ShowAppointmentsAdapter extends RecyclerView.Adapter<AppointmentVH>
         try {
             AppointmentDto appointment = appointments.get(position);
             holder.setAppointment(appointment);
+            holder.tvService.setText(appointment.getProvidedService().getName());
             holder.tvTime.setText(appointment.getTime().toString());
             holder.cbAbsent.setChecked(appointment.getAbsence());
             holder.tvDate.setText(appointment.getDate().toString());
@@ -81,6 +82,7 @@ class AppointmentVH extends RecyclerView.ViewHolder {
     TextView tvPayment;
     TextView tvTime;
     TextView tvNote;
+    TextView tvService;
 
     public AppointmentVH(@NonNull View itemView) {
         super(itemView);
@@ -89,6 +91,7 @@ class AppointmentVH extends RecyclerView.ViewHolder {
         tvTime = itemView.findViewById(R.id.tvAppointmentTime);
         tvDate = itemView.findViewById(R.id.tvAppointmentDate);
         tvNote = itemView.findViewById(R.id.tvAppointmentNote);
+        tvService = itemView.findViewById(R.id.tvService);
 
     }
 

@@ -149,16 +149,38 @@
         app:layout_constraintTop_toBottomOf="@+id/etClientSearchAppointment"
         app:layout_constraintVertical_weight="1" />
 
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/apsService"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="36dp"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/etAppointmentNotes"
+        app:layout_constraintTop_toBottomOf="@+id/etAppointmentNotes"/>
+
+
     <Button
         android:id="@+id/btnSaveAppointment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:text="@string/create_appointment_short"
         app:layout_constraintBottom_toBottomOf="@+id/rvClientListAppointment"
         app:layout_constraintEnd_toEndOf="@+id/etAppointmentNotes"
-        app:layout_constraintStart_toEndOf="@+id/rvClientListAppointment" />
+        app:layout_constraintStart_toEndOf="@+id/btnShowServices"/>
 
+    <Button
+        android:id="@+id/btnShowServices"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+
+        android:layout_marginEnd="-15dp"
+        android:background="@android:drawable/ic_menu_add"
+        android:backgroundTint="@color/color_coco_2"
+        android:padding="1dp"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="@+id/rvClientListAppointment"
+        app:layout_constraintStart_toEndOf="@+id/apsService"/>
 
     <EditText
         android:id="@+id/etAppointmentNotes"

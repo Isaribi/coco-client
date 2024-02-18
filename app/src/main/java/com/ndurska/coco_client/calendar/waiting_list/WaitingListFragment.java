@@ -2,6 +2,7 @@ package com.ndurska.coco_client.calendar.waiting_list;
 
 import static com.ndurska.coco_client.calendar.CalendarActivity.executorService;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,10 +46,16 @@ public class WaitingListFragment extends DialogFragment implements AddWaitingLis
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context = (CalendarActivity) context;
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        waitingListRequestDispatcher = new WaitingListRequestDispatcher(context);
+        waitingListRequestDispatcher = new WaitingListRequestDispatcher(getContext());
         if (getArguments() != null) {
             waitingList = (List<WaitingListRecordDto>) getArguments().getSerializable("waitingList");
         }

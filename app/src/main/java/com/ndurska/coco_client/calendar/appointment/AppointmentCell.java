@@ -26,7 +26,6 @@ public class AppointmentCell {
     private final LocalTime time;
     private final LocalDate date;
     private static List<AppointmentDto> appointmentDtos;
-    private static List<DogDto> dogs;
     private static List<UnavailablePeriodDto> unavailablePeriodDtos;
 
     public AppointmentCell(LocalDate date, LocalTime time) {
@@ -38,16 +37,11 @@ public class AppointmentCell {
     }
 
     private void setThisDayAppointments() {
-        int timeInMinutes = getTimeInMinutes(time);
-        unavailable = checkIfUnavailable(timeInMinutes);
+        unavailable = checkIfUnavailable();
         for (AppointmentDto appointmentDto : appointmentDtos) {
             checkIfFirstCellOfAppointment(appointmentDto);
             checkIfLastOrMiddleCellOfAppointment(appointmentDto);
         }
-    }
-
-    private int getTimeInMinutes(LocalTime time) {
-        return time.getHour() * 60 + time.getMinute();
     }
 
     private void checkIfFirstCellOfAppointment(AppointmentDto appointmentDto) {
@@ -77,8 +71,13 @@ public class AppointmentCell {
         }
     }
 
+    private int getTimeInMinutes(LocalTime time) {
+        return time.getHour() * 60 + time.getMinute();
+    }
 
-    private boolean checkIfUnavailable(int timeInMinutes) {
+
+    private boolean checkIfUnavailable() {
+        int timeInMinutes = getTimeInMinutes(time);
         for (UnavailablePeriodDto unavailablePeriodDto : unavailablePeriodDtos) {
             int upStartInMinutes = getTimeInMinutes(unavailablePeriodDto.getTimeStart());
             int upEndInMinutes = getTimeInMinutes(unavailablePeriodDto.getTimeEnd());

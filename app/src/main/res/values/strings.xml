@@ -105,4 +105,6 @@
     <string name="ok">OK</string>
     <string name="lock_day_prompt">Zamknąć na cały dzień?</string>
     <string name="servicedesc">Serwis costam kangurek kao</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

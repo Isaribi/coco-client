@@ -84,8 +84,8 @@ public class AddWaitingListRecordFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dogsRequestDispatcher = new DogsRequestDispatcher(getContext().getApplicationContext());
-        waitingListRequestDispatcher = new WaitingListRequestDispatcher(getContext().getApplicationContext());
+        dogsRequestDispatcher = new DogsRequestDispatcher(getActivity().getApplicationContext());
+        waitingListRequestDispatcher = new WaitingListRequestDispatcher(getActivity().getApplicationContext());
         dateStart = LocalDate.now();
         dateEnd = LocalDate.now().plusMonths(1);
     }
